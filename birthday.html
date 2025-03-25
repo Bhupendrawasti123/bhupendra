@@ -157,7 +157,7 @@
         <!-- Birthday Display (hidden initially) -->
         <div class="birthday-display" id="birthdayDisplay">
             <div class="photo-frame">
-                <img src="" alt="" class="birthday-pic" id="birthdayPic">
+                <img src="" alt="" class="birthday-pic" id="birthdayPic" onerror="this.src='https://i.imgur.com/JQWUQfZ.jpg'">
             </div>
             <div class="theme-icon" id="themeIcon"></div>
             <h1 class="birthday-title">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
@@ -227,7 +227,8 @@
                     message: "May your birthday mark the beginning of your most successful year yet!",
                     icon: "🏆"
                 }
-            ]
+            ],
+            defaultPic: "https://i.imgur.com/JQWUQfZ.jpg"
         };
 
         // Initialize the app
@@ -245,12 +246,40 @@
             document.getElementById('generateBtn').addEventListener('click', createShareLink);
             document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
             document.getElementById('backBtn').addEventListener('click', resetForm);
+            
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('name') || urlParams.has('pic') || urlParams.has('message')) {
+                // If sharing link is opened, show the birthday display
+                showSharedCard(urlParams);
+            }
+        }
+
+        // Show shared card when opening a shared link
+        function showSharedCard(urlParams) {
+            const name = urlParams.get('name') || 'Friend';
+            const pic = urlParams.get('pic') || birthdayData.defaultPic;
+            const messageIndex = urlParams.get('message') || 
+                Math.floor(Math.random() * birthdayData.wishes.length);
+            
+            // Update display
+            document.getElementById('birthdayName').textContent = decodeURIComponent(name);
+            document.getElementById('birthdayPic').src = pic ? decodeURIComponent(pic) : birthdayData.defaultPic;
+            document.getElementById('birthdayMessage').textContent = 
+                birthdayData.wishes[messageIndex].message;
+            document.getElementById('themeIcon').textContent = 
+                birthdayData.wishes[messageIndex].icon;
+            
+            // Show the birthday display and hide form
+            document.getElementById('birthdayDisplay').style.display = 'block';
+            document.getElementById('customizeForm').style.display = 'none';
+            document.getElementById('shareSection').style.display = 'none';
         }
 
         // Create shareable link
         function createShareLink() {
             const name = document.getElementById('customName').value.trim() || 'Friend';
-            const pic = document.getElementById('customPic').value.trim() || 'https://i.imgur.com/JQWUQfZ.jpg';
+            const pic = document.getElementById('customPic').value.trim() || birthdayData.defaultPic;
             const messageIndex = document.getElementById('customMessage').value === 'random' ? 
                 Math.floor(Math.random() * birthdayData.wishes.length) : 
                 parseInt(document.getElementById('customMessage').value);
@@ -265,12 +294,10 @@
             document.getElementById('birthdayDisplay').style.display = 'block';
             
             // Generate share URL
-            const url = new URL(window.location.href.split('?')[0]);
-            url.searchParams.set('name', encodeURIComponent(name));
-            url.searchParams.set('pic', encodeURIComponent(pic));
-            url.searchParams.set('message', messageIndex);
+            const currentUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${currentUrl}?name=${encodeURIComponent(name)}&pic=${encodeURIComponent(pic)}&message=${messageIndex}`;
             
-            document.getElementById('shareUrl').value = url.toString();
+            document.getElementById('shareUrl').value = shareUrl;
             document.getElementById('customizeForm').style.display = 'none';
             document.getElementById('shareSection').style.display = 'block';
         }
@@ -295,6 +322,11 @@
             document.getElementById('birthdayDisplay').style.display = 'none';
             document.getElementById('shareSection').style.display = 'none';
             document.getElementById('customizeForm').style.display = 'block';
+            
+            // Reset form fields
+            document.getElementById('customName').value = '';
+            document.getElementById('customPic').value = '';
+            document.getElementById('customMessage').value = 'random';
         }
 
         // Initialize the app when DOM is loaded
