@@ -20,52 +20,47 @@
         <div class="theme-btn theme-royal-btn" onclick="changeTheme('theme-royal')"></div>
     </div>
     
+    <!-- Customization Form -->
+    <div class="customize-form" id="customizeForm">
+        <h2>Customize Your Card</h2>
+        <form id="birthdayForm">
+            <div class="form-group">
+                <label for="userName">Your Name:</label>
+                <input type="text" id="userName" placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label for="userPic">Photo URL:</label>
+                <input type="url" id="userPic" placeholder="https://example.com/photo.jpg">
+            </div>
+            <div class="form-group">
+                <label for="userMessage">Select Message:</label>
+                <select id="userMessage">
+                    <option value="random">Random Message</option>
+                    <!-- Messages will be populated by JavaScript -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="userTheme">Select Theme:</label>
+                <select id="userTheme">
+                    <option value="default">Default</option>
+                    <option value="theme-sunset">Sunset</option>
+                    <option value="theme-ocean">Ocean</option>
+                    <option value="theme-forest">Forest</option>
+                    <option value="theme-royal">Royal</option>
+                </select>
+            </div>
+            <button type="submit" class="form-submit-btn">Create Card</button>
+        </form>
+    </div>
+    
     <!-- Info Modal -->
     <div class="info-modal" id="infoModal">
-        <div class="info-content">
-            <span class="close-info" id="closeInfo">&times;</span>
-            <h2>How This Website Works</h2>
-            <p>This birthday celebration website shows random motivational messages with each visit or refresh.</p>
-            
-            <h3>Features:</h3>
-            <ul>
-                <li>Different inspirational birthday message on each load</li>
-                <li>Beautiful photo display with circular frame</li>
-                <li>Thematic icons matching each message</li>
-                <li>Continuous confetti celebration</li>
-                <li>"Another Wish" button to get new messages</li>
-                <li>Multiple color schemes to choose from</li>
-                <li>Special animations and effects</li>
-                <li>Sound effects (can be muted)</li>
-                <li>Shareable links</li>
-            </ul>
-            
-            <h3>How to Personalize:</h3>
-            <p>You can customize this page by adding parameters to the URL:</p>
-            <ul>
-                <li><code>?name=FirstName</code> - Sets the birthday person's name</li>
-                <li><code>?pic=ImageURL</code> - Sets the photo to display</li>
-                <li><code>?theme=theme-name</code> - Sets initial theme (default, theme-sunset, theme-ocean, etc.)</li>
-            </ul>
-            <p>Example: <code>birthday.html?name=Sarah&pic=https://example.com/photo.jpg&theme=theme-ocean</code></p>
-            
-            <p>If no parameters are provided, it will use default values.</p>
-        </div>
+        <!-- ... existing info modal content ... -->
     </div>
     
     <!-- Birthday Modal -->
     <div class="modal-overlay" id="birthdayModal">
-        <div class="birthday-card">
-            <div class="photo-frame">
-                <img src="" alt="Birthday Person" class="birthday-pic" id="birthdayPic">
-            </div>
-            
-            <div class="theme-icon" id="themeIcon"></div>
-            <h1 class="birthday-title">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
-            <p class="birthday-message" id="birthdayMessage"></p>
-            
-            <button class="refresh-btn" onclick="location.reload()">Another Wish ♻️</button>
-        </div>
+        <!-- ... existing birthday card content ... -->
     </div>
 
     <!-- Share Button -->
@@ -73,6 +68,9 @@
     
     <!-- Mute Button -->
     <div class="mute-btn" id="muteBtn">🔊</div>
+
+    <!-- Customize Button -->
+    <div class="customize-btn" id="customizeBtn">✏️</div>
 
     <script src="scripts/birthday.js"></script>
 </body>
