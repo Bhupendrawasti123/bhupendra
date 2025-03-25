@@ -1,60 +1,113 @@
-<!-- Birthday Modal -->
-<div class="modal-overlay" id="birthdayModal">
-    <div class="birthday-card">
-        <div class="photo-frame">
-            <img src="" alt="Birthday Person" class="birthday-pic" id="birthdayPic">
-        </div>
-        
-        <div class="theme-icon" id="themeIcon"></div>
-        <h1 class="birthday-title">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
-        <p class="birthday-message" id="birthdayMessage"></p>
-        
-        <!-- Customization Form (initially hidden) -->
-        <div class="customize-form" id="customizeForm">
-            <h3>Customize Your Card</h3>
-            <form id="birthdayForm">
-                <div class="form-group">
-                    <label for="userName">Your Name:</label>
-                    <input type="text" id="userName" placeholder="Enter your name">
-                </div>
-                <div class="form-group">
-                    <label for="userPic">Photo URL:</label>
-                    <input type="url" id="userPic" placeholder="https://example.com/photo.jpg">
-                </div>
-                <div class="form-group">
-                    <label for="userMessage">Select Message:</label>
-                    <select id="userMessage">
-                        <option value="random">Random Message</option>
-                        <!-- Messages will be populated by JavaScript -->
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="userTheme">Select Theme:</label>
-                    <select id="userTheme">
-                        <option value="default">Default</option>
-                        <option value="theme-sunset">Sunset</option>
-                        <option value="theme-ocean">Ocean</option>
-                        <option value="theme-forest">Forest</option>
-                        <option value="theme-royal">Royal</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="form-submit-btn">Update Card</button>
-                    <button type="button" class="form-cancel-btn" id="cancelCustomize">Cancel</button>
-                </div>
-            </form>
-        </div>
-        
-        <!-- Share URL (initially hidden) -->
-        <div class="share-url-container" id="shareUrlContainer">
-            <p>Share this customized birthday message:</p>
-            <input type="text" id="shareUrl" readonly>
-            <button class="copy-url-btn" id="copyUrlBtn">Copy URL</button>
-        </div>
-        
-        <div class="card-actions">
-            <button class="refresh-btn" onclick="location.reload()">Another Wish ♻️</button>
-            <button class="customize-btn" id="showCustomizeBtn">Customize ✏️</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Wishes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="css/birthday.css" rel="stylesheet">
+</head>
+<body class="default">
+    <!-- Info Button -->
+    <div class="info-btn" id="infoBtn">i</div>
+    
+    <!-- Theme Selector -->
+    <div class="theme-selector">
+        <div class="theme-btn theme-default" onclick="changeTheme('default')"></div>
+        <div class="theme-btn theme-sunset-btn" onclick="changeTheme('theme-sunset')"></div>
+        <div class="theme-btn theme-ocean-btn" onclick="changeTheme('theme-ocean')"></div>
+        <div class="theme-btn theme-forest-btn" onclick="changeTheme('theme-forest')"></div>
+        <div class="theme-btn theme-royal-btn" onclick="changeTheme('theme-royal')"></div>
+    </div>
+    
+    <!-- Info Modal -->
+    <div class="info-modal" id="infoModal">
+        <div class="info-content">
+            <span class="close-info" id="closeInfo">&times;</span>
+            <h2>How This Website Works</h2>
+            <p>This birthday celebration website shows motivational messages that you can customize.</p>
+            
+            <h3>Features:</h3>
+            <ul>
+                <li>Customizable name, photo, and message</li>
+                <li>Multiple color themes</li>
+                <li>Shareable links</li>
+                <li>Confetti celebration</li>
+                <li>Sound effects (can be muted)</li>
+            </ul>
+            
+            <h3>How to Use:</h3>
+            <ol>
+                <li>Click "Customize" to personalize your card</li>
+                <li>After customizing, copy the shareable URL</li>
+                <li>Share the URL with friends and family</li>
+            </ol>
         </div>
     </div>
-</div>
+    
+    <!-- Birthday Modal -->
+    <div class="modal-overlay" id="birthdayModal">
+        <div class="birthday-card">
+            <div class="photo-frame">
+                <img src="" alt="Birthday Person" class="birthday-pic" id="birthdayPic">
+            </div>
+            
+            <div class="theme-icon" id="themeIcon"></div>
+            <h1 class="birthday-title">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
+            <p class="birthday-message" id="birthdayMessage"></p>
+            
+            <!-- Customization Form -->
+            <div class="customize-form" id="customizeForm">
+                <h3>Customize Your Card</h3>
+                <form id="birthdayForm">
+                    <div class="form-group">
+                        <label for="userName">Name:</label>
+                        <input type="text" id="userName" placeholder="Enter name">
+                    </div>
+                    <div class="form-group">
+                        <label for="userPic">Photo URL:</label>
+                        <input type="url" id="userPic" placeholder="https://example.com/photo.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label for="userMessage">Message:</label>
+                        <select id="userMessage">
+                            <option value="random">Random Message</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="userTheme">Theme:</label>
+                        <select id="userTheme">
+                            <option value="default">Default</option>
+                            <option value="theme-sunset">Sunset</option>
+                            <option value="theme-ocean">Ocean</option>
+                            <option value="theme-forest">Forest</option>
+                            <option value="theme-royal">Royal</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="form-submit-btn">Update</button>
+                        <button type="button" class="form-cancel-btn" id="cancelCustomize">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Share URL -->
+            <div class="share-url-container" id="shareUrlContainer">
+                <p>Share this birthday message:</p>
+                <input type="text" id="shareUrl" readonly>
+                <button class="copy-url-btn" id="copyUrlBtn">Copy</button>
+            </div>
+            
+            <div class="card-actions">
+                <button class="refresh-btn" onclick="location.reload()">Another Wish ♻️</button>
+                <button class="customize-btn" id="showCustomizeBtn">Customize ✏️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mute Button -->
+    <div class="mute-btn" id="muteBtn">🔊</div>
+
+    <script src="scripts/birthday.js"></script>
+</body>
+</html>
