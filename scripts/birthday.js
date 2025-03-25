@@ -1,401 +1,205 @@
-/**
- * Birthday Card Application with Scoring System
- * Loads messages from /bhupendra/data/birthday.json
- */
-
-// Configuration
-const CONFIG = {
-    defaultName: "....",
-    defaultPic: "https://i.imgur.com/JQWUQfZ.jpg",
-    messagesFile: "https://bhupendrawasti123.github.io/bhupendra/data/birthday.json",
-    sounds: {
-        confetti: "https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3",
-        message: "https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3",
-        theme: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
-        form: "https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3"
-    },
-    scoring: {
-        baseMultiplier: 1,
-        streakMultiplier: 0.5, // Additional 50% per streak
-        maxStreak: 5,
-        streakBonus: 20
-    }
-};
-
-// Application State
-const state = {
-    name: CONFIG.defaultName,
-    pic: CONFIG.defaultPic,
-    messages: [],
-    currentWish: null,
-    isMuted: false,
-    audioElements: {},
-    score: 0,
-    streak: 0,
-    lastClickTime: 0,
-    streakTimeout: null
-};
-
-// DOM Elements
-const elements = {
-    // Card Elements
-    birthdayName: document.getElementById('birthdayName'),
-    birthdayPic: document.getElementById('birthdayPic'),
-    birthdayMessage: document.getElementById('birthdayMessage'),
-    themeIcon: document.getElementById('themeIcon'),
-    
-    // Score Elements
-    currentScore: document.getElementById('currentScore'),
-    currentStreak: document.getElementById('currentStreak'),
-    streakDisplay: document.querySelector('.streak-display'),
-    
-    // Form Elements
-    customizeForm: document.getElementById('customizeForm'),
-    userName: document.getElementById('userName'),
-    userPic: document.getElementById('userPic'),
-    userMessage: document.getElementById('userMessage'),
-    userTheme: document.getElementById('userTheme'),
-    birthdayForm: document.getElementById('birthdayForm'),
-    
-    // Button Elements
-    refreshBtn: document.getElementById('refreshBtn'),
-    showCustomizeBtn: document.getElementById('showCustomizeBtn'),
-    cancelCustomize: document.getElementById('cancelCustomize'),
-    
-    // Modal Elements
-    infoModal: document.getElementById('infoModal'),
-    infoBtn: document.getElementById('infoBtn'),
-    closeInfo: document.getElementById('closeInfo'),
-    
-    // Other UI Elements
-    muteBtn: document.getElementById('muteBtn'),
-    themeSelector: document.querySelector('.theme-selector')
-};
-
-// Initialize the application
-async function init() {
-    initializeAudio();
-    loadFromURL();
-    await loadMessages();
-    setupEventListeners();
-    applyWish();
-    createConfetti();
-    setInterval(createConfetti, 3000);
-}
-
-// Initialize audio elements
-function initializeAudio() {
-    for (const [key, url] of Object.entries(CONFIG.sounds)) {
-        state.audioElements[key] = new Audio(url);
-    }
-}
-
-// Load data from URL parameters
-function loadFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('name')) state.name = params.get('name');
-    if (params.get('pic')) state.pic = params.get('pic');
-    if (params.get('theme')) changeTheme(params.get('theme'));
-}
-
-// Load messages from JSON file
-async function loadMessages() {
-    try {
-        const response = await fetch(CONFIG.messagesFile);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
-        state.messages = await response.json();
-        
-        // Verify loaded messages
-        if (!Array.isArray(state.messages) {
-            throw new Error("Invalid data format: expected array");
+// Birthday data
+const birthdayData = {
+    name: "....", // Default name
+    pic: "https://i.imgur.com/JQWUQfZ.jpg", // Default photo
+    wishes: [
+        {
+            message: "Every year is another peak to conquer. May this birthday mark the beginning of your most victorious climb yet!",
+            icon: "⛰️",
+            animation: "rotate-animation"
+        },
+        {
+            message: "Like the phoenix, may you rise stronger with each passing year. Your best chapters are still being written!",
+            icon: "🔥",
+            animation: "bounce-animation"
+        },
+        {
+            message: "May this birthday point you toward your true north - where purpose meets passion and dreams become destinations.",
+            icon: "🧭",
+            animation: "rotate-animation"
+        },
+        {
+            message: "Today begins a new chapter in your extraordinary story. Make it one where obstacles become opportunities!",
+            icon: "📖",
+            animation: "bounce-animation"
+        },
+        {
+            message: "You've been a light for so many others - may this birthday illuminate your own brightest path forward.",
+            icon: "💡",
+            animation: "rotate-animation"
         }
-        
-        // Initialize with random wish
-        getRandomWish();
-        initializeForm();
-    } catch (error) {
-        console.error("Error loading messages:", error);
-        // Fallback to default messages
-        state.messages = [{
-            message: "Happy Birthday! Wishing you all the best!",
-            icon: "🎉",
-            animation: "bounce-animation",
-            points: 10
-        }];
-        getRandomWish();
-        initializeForm();
-    }
+    ]
+};
+
+// Get parameters from URL
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('name')) birthdayData.name = urlParams.get('name');
+if (urlParams.get('pic')) birthdayData.pic = urlParams.get('pic');
+if (urlParams.get('theme')) {
+    document.body.className = urlParams.get('theme');
 }
 
-// Get random wish from loaded messages
+// DOM elements
+const birthdayName = document.getElementById('birthdayName');
+const birthdayPic = document.getElementById('birthdayPic');
+const birthdayMessage = document.getElementById('birthdayMessage');
+const themeIcon = document.getElementById('themeIcon');
+const refreshBtn = document.getElementById('refreshBtn');
+const infoBtn = document.getElementById('infoBtn');
+const infoModal = document.getElementById('infoModal');
+const closeInfo = document.getElementById('closeInfo');
+
+// Preload images
+const preloadImage = new Image();
+preloadImage.src = 'https://i.imgur.com/JQWUQfZ.jpg';
+
+// Load user image if different
+if (birthdayData.pic !== preloadImage.src) {
+    const userImage = new Image();
+    userImage.src = birthdayData.pic;
+}
+
+// Randomly select and display a wish
+let randomWish;
+
 function getRandomWish() {
-    if (state.messages.length === 0) return;
-    
-    playSound('message');
-    const randomIndex = Math.floor(Math.random() * state.messages.length);
-    state.currentWish = state.messages[randomIndex];
-    
-    // Update form selection if it exists
-    if (elements.userMessage) {
-        elements.userMessage.value = randomIndex;
-    }
+    randomWish = birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+    applyWish();
 }
 
-// Apply current wish to the UI
 function applyWish() {
-    elements.birthdayName.textContent = state.name;
-    elements.birthdayPic.src = state.pic;
-    elements.birthdayMessage.textContent = state.currentWish?.message || "Happy Birthday!";
-    elements.themeIcon.textContent = state.currentWish?.icon || "🎂";
-    elements.themeIcon.className = `theme-icon ${state.currentWish?.animation || "bounce-animation"}`;
+    birthdayName.textContent = birthdayData.name;
+    birthdayPic.src = birthdayData.pic;
+    birthdayMessage.textContent = randomWish.message;
+    
+    themeIcon.textContent = randomWish.icon;
+    themeIcon.className = 'theme-icon ' + randomWish.animation;
+    
+    // Ensure image is visible after load
+    birthdayPic.onload = function() {
+        this.style.opacity = 1;
+    };
+    
+    birthdayPic.onerror = function() {
+        this.src = 'https://i.imgur.com/JQWUQfZ.jpg';
+        this.style.opacity = 1;
+    };
 }
 
-// Initialize form with messages
-function initializeForm() {
-    if (!elements.userMessage) return;
-    
-    // Clear existing options except the first one
-    while (elements.userMessage.options.length > 1) {
-        elements.userMessage.remove(1);
-    }
-    
-    // Add all messages as options
-    state.messages.forEach((wish, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = wish.message.length > 50 
-            ? wish.message.substring(0, 47) + "..." 
-            : wish.message;
-        elements.userMessage.appendChild(option);
-    });
-    
-    // Set form values
-    elements.userName.value = state.name;
-    elements.userPic.value = state.pic;
-}
-
-// Change theme
+// Change color theme
 function changeTheme(theme) {
-    playSound('theme');
     document.body.className = theme;
-    if (elements.userTheme) {
-        elements.userTheme.value = theme;
-    }
-    localStorage.setItem('birthdayTheme', theme);
+    // Update URL without reload
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('theme', theme);
+    window.history.pushState({}, '', newUrl);
 }
 
-// Play sound with current volume
-function playSound(soundKey) {
-    if (state.isMuted || !state.audioElements[soundKey]) return;
-    
-    const sound = state.audioElements[soundKey];
-    sound.currentTime = 0;
-    sound.volume = soundKey === 'message' ? 0.5 : 0.3;
-    
-    sound.play().catch(error => {
-        console.log("Audio playback error:", error);
-    });
-}
-
-// Create confetti effect
+// Create optimized confetti
 function createConfetti() {
-    playSound('confetti');
+    const isMobile = window.innerWidth < 768;
+    const count = isMobile ? 10 : 20;
     const colors = ['var(--primary)', 'var(--secondary)', 'var(--accent)', '#ff9ff3', '#a29bfe'];
     
-    for (let i = 0; i < 20; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
+    // Reuse existing confetti elements if possible
+    const existingConfetti = document.querySelectorAll('.confetti');
+    const reusable = Math.min(existingConfetti.length, count);
+    
+    for (let i = 0; i < count; i++) {
+        let confetti;
+        if (i < reusable) {
+            confetti = existingConfetti[i];
+            confetti.style.animation = 'none';
+            void confetti.offsetWidth; // Trigger reflow
+        } else {
+            confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            document.body.appendChild(confetti);
+        }
+        
         confetti.style.left = Math.random() * 100 + 'vw';
         confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
         confetti.style.animationDelay = (Math.random() * 2) + 's';
-        document.body.appendChild(confetti);
+        confetti.style.animationName = 'confettiFall';
         
-        setTimeout(() => confetti.remove(), 5000);
+        setTimeout(() => {
+            if (confetti.parentNode === document.body) {
+                confetti.remove();
+            }
+        }, 5000);
     }
 }
 
-// Update score display
-function updateScore(points) {
-    state.score += points;
-    elements.currentScore.textContent = state.score;
-    elements.currentScore.classList.add('score-pop');
-    setTimeout(() => {
-        elements.currentScore.classList.remove('score-pop');
-    }, 500);
-}
+// Info modal functionality
+infoBtn.addEventListener('click', function() {
+    infoModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+});
 
-// Update streak counter
-function updateStreak() {
-    const now = Date.now();
-    const streakWindow = 5000; // 5 seconds to maintain streak
-    
-    if (now - state.lastClickTime < streakWindow) {
-        state.streak = Math.min(state.streak + 1, CONFIG.scoring.maxStreak);
-    } else {
-        state.streak = 1;
-    }
-    
-    state.lastClickTime = now;
-    elements.currentStreak.textContent = state.streak;
-    
-    if (state.streak > 1) {
-        elements.streakDisplay.classList.add('streak-active');
-    } else {
-        elements.streakDisplay.classList.remove('streak-active');
-    }
-    
-    // Reset streak if no activity
-    clearTimeout(state.streakTimeout);
-    state.streakTimeout = setTimeout(() => {
-        state.streak = 0;
-        elements.currentStreak.textContent = '0';
-        elements.streakDisplay.classList.remove('streak-active');
-    }, streakWindow);
-}
+closeInfo.addEventListener('click', function() {
+    infoModal.style.display = 'none';
+    document.body.style.overflow = '';
+});
 
-// Calculate points based on current streak
-function calculatePoints() {
-    if (!state.currentWish?.points) return 0;
-    
-    let points = state.currentWish.points * CONFIG.scoring.baseMultiplier;
-    
-    // Apply streak multiplier
-    if (state.streak > 1) {
-        points *= (1 + (CONFIG.scoring.streakMultiplier * (state.streak - 1)));
+// Close modals when clicking outside
+window.addEventListener('click', function(event) {
+    if (event.target === infoModal) {
+        infoModal.style.display = 'none';
+        document.body.style.overflow = '';
     }
-    
-    // Apply streak bonus
-    if (state.streak >= CONFIG.scoring.maxStreak) {
-        points += CONFIG.scoring.streakBonus;
-    }
-    
-    return Math.floor(points);
-}
+});
 
-// Setup all event listeners
-function setupEventListeners() {
-    // Form submission
-    elements.birthdayForm?.addEventListener('submit', handleFormSubmit);
-    
-    // Button events
-    elements.refreshBtn?.addEventListener('click', handleRefresh);
-    elements.showCustomizeBtn?.addEventListener('click', showCustomizeForm);
-    elements.cancelCustomize?.addEventListener('click', hideCustomizeForm);
-    elements.muteBtn?.addEventListener('click', toggleMute);
-    
-    // Info modal
-    elements.infoBtn?.addEventListener('click', showInfoModal);
-    elements.closeInfo?.addEventListener('click', hideInfoModal);
-    window.addEventListener('click', handleOutsideClick);
-    
-    // Theme buttons
-    if (elements.themeSelector) {
-        elements.themeSelector.querySelectorAll('.theme-btn').forEach(btn => {
-            btn.addEventListener('click', handleThemeButtonClick);
-        });
+// Keyboard controls
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+        location.reload();
     }
-    
-    // Image error handling
-    elements.birthdayPic.onerror = handleImageError;
-    
-    // Keyboard controls
-    document.addEventListener('keydown', handleKeyDown);
-}
+    if (e.key === 'Escape' && infoModal.style.display === 'flex') {
+        infoModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+});
 
-// Event Handlers
-function handleFormSubmit(e) {
-    e.preventDefault();
-    playSound('form');
-    
-    // Update state from form
-    state.name = elements.userName.value || CONFIG.defaultName;
-    state.pic = elements.userPic.value || CONFIG.defaultPic;
-    
-    // Get selected message
-    if (elements.userMessage.value === 'random') {
-        getRandomWish();
-    } else {
-        const selectedIndex = parseInt(elements.userMessage.value);
-        if (!isNaN(selectedIndex) && selectedIndex >= 0 && selectedIndex < state.messages.length) {
-            state.currentWish = state.messages[selectedIndex];
+// Make theme buttons keyboard accessible
+document.querySelectorAll('.theme-btn').forEach((btn, index) => {
+    btn.setAttribute('tabindex', '0');
+    btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            btn.click();
         }
+    });
+});
+
+// Add touch feedback for mobile
+refreshBtn.addEventListener('touchstart', function() {
+    this.style.transform = 'scale(0.95)';
+});
+
+refreshBtn.addEventListener('touchend', function() {
+    this.style.transform = 'scale(1)';
+});
+
+// Initial setup
+getRandomWish();
+
+// Create confetti on load and every 3 seconds
+window.addEventListener('load', function() {
+    createConfetti();
+    
+    // Only continue animation if not in reduced motion mode
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setInterval(createConfetti, 3000);
     }
     
-    // Apply theme
-    changeTheme(elements.userTheme.value);
-    
-    // Update UI
-    applyWish();
-    hideCustomizeForm();
-}
+    // Set focus on the refresh button for keyboard users
+    refreshBtn.focus();
+});
 
-function handleRefresh() {
-    getRandomWish();
-    applyWish();
-    
-    updateStreak();
-    const points = calculatePoints();
-    updateScore(points);
-    
-    // Extra confetti for high scores
-    if (points > state.currentWish?.points * 2) {
-        createConfetti();
+// Handle theme persistence on page refresh
+window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('theme')) {
+        document.body.className = urlParams.get('theme');
     }
-}
-
-function showCustomizeForm() {
-    playSound('form');
-    elements.customizeForm.style.display = 'block';
-}
-
-function hideCustomizeForm() {
-    elements.customizeForm.style.display = 'none';
-}
-
-function toggleMute() {
-    state.isMuted = !state.isMuted;
-    elements.muteBtn.textContent = state.isMuted ? '🔇' : '🔊';
-}
-
-function showInfoModal() {
-    elements.infoModal.style.display = 'flex';
-}
-
-function hideInfoModal() {
-    elements.infoModal.style.display = 'none';
-}
-
-function handleOutsideClick(event) {
-    if (event.target === elements.infoModal) {
-        hideInfoModal();
-    }
-    if (event.target === elements.customizeForm) {
-        hideCustomizeForm();
-    }
-}
-
-function handleThemeButtonClick() {
-    const theme = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-    elements.userTheme.value = theme;
-}
-
-function handleImageError() {
-    this.src = CONFIG.defaultPic;
-}
-
-function handleKeyDown(e) {
-    switch (e.key) {
-        case ' ':
-            handleRefresh();
-            break;
-        case 'Escape':
-            hideCustomizeForm();
-            hideInfoModal();
-            break;
-    }
-}
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', init);
+});
