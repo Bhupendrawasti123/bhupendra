@@ -41,33 +41,30 @@
         <div class="info-content">
             <button class="close-info" id="closeInfo" aria-label="Close modal">&times;</button>
             <h2 id="modalTitle">How This Website Works</h2>
-            <p>This birthday celebration website shows random motivational messages with each visit or refresh.</p>
+            <p>This birthday celebration website shows motivational messages that you can customize.</p>
             
             <h3>Features:</h3>
             <ul>
-                <li>Different inspirational birthday message on each load</li>
+                <li>Choose from inspirational birthday messages or get random ones</li>
+                <li>Customize name, photo, theme, and message</li>
                 <li>Beautiful photo display with circular frame</li>
-                <li>Thematic icons matching each message</li>
-                <li>Continuous confetti celebration</li>
-                <li>"Another Wish" button to get new messages</li>
+                <li>Create shareable links with your customizations</li>
                 <li>Multiple color schemes to choose from</li>
-                <li>Special animations and effects</li>
             </ul>
             
             <h3>How to Personalize:</h3>
-            <p>You can customize this page by adding parameters to the URL:</p>
+            <p>Use the customization form below the birthday message to:</p>
             <ul>
-                <li><code>?name=FirstName</code> - Sets the birthday person's name</li>
-                <li><code>?pic=ImageURL</code> - Sets the photo to display</li>
-                <li><code>?theme=theme-name</code> - Sets initial theme (default, theme-sunset, theme-ocean, etc.)</li>
+                <li>Set the birthday person's name</li>
+                <li>Add a photo URL</li>
+                <li>Select a color theme</li>
+                <li>Choose a specific message</li>
+                <li>Generate a shareable link</li>
             </ul>
-            <p>Example: <code>birthday.html?name=Sarah&pic=https://example.com/photo.jpg&theme=theme-ocean</code></p>
-            
-            <p>If no parameters are provided, it will use default values.</p>
         </div>
     </div>
     
-    <!-- Birthday Modal -->
+    <!-- Birthday Card -->
     <div class="modal-overlay" id="birthdayModal" role="dialog" aria-modal="true" aria-labelledby="birthdayHeading">
         <div class="birthday-card">
             <div class="photo-frame" aria-hidden="true">
@@ -77,38 +74,48 @@
             <div class="theme-icon" id="themeIcon" aria-hidden="true"></div>
             <h1 class="birthday-title" id="birthdayHeading">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
             <p class="birthday-message" id="birthdayMessage" aria-live="polite"></p>
+            
+            <!-- Customization Form -->
             <div class="customize-form" id="customizeForm">
-    <h3>Personalize This Card</h3>
-    <div class="form-group">
-        <label for="customName">Recipient's Name:</label>
-        <input type="text" id="customName" placeholder="Enter name">
-    </div>
-    <div class="form-group">
-        <label for="customPic">Photo URL:</label>
-        <input type="url" id="customPic" placeholder="https://example.com/photo.jpg">
-    </div>
-    <div class="form-group">
-        <label>Theme:</label>
-        <div class="theme-selector-form">
-            <button class="theme-btn-form theme-default" onclick="selectTheme('default')" aria-label="Default theme"></button>
-            <button class="theme-btn-form theme-sunset-btn" onclick="selectTheme('theme-sunset')" aria-label="Sunset theme"></button>
-            <button class="theme-btn-form theme-ocean-btn" onclick="selectTheme('theme-ocean')" aria-label="Ocean theme"></button>
-            <button class="theme-btn-form theme-forest-btn" onclick="selectTheme('theme-forest')" aria-label="Forest theme"></button>
-            <button class="theme-btn-form theme-royal-btn" onclick="selectTheme('theme-royal')" aria-label="Royal theme"></button>
-        </div>
-    </div>
-    <button class="save-btn" id="saveBtn">Save & Create Share Link</button>
-</div>
-
-<div class="share-section" id="shareSection" style="display:none;">
-    <h3>Share This Card</h3>
-    <div class="share-url">
-        <input type="text" id="shareUrl" readonly>
-        <button class="copy-btn" id="copyBtn">Copy Link</button>
-    </div>
-    <button class="back-btn" id="backBtn">Customize Again</button>
-</div>
-            <button class="refresh-btn" id="refreshBtn" aria-label="Get another birthday wish">Another Wish ♻️</button>
+                <h3>Personalize This Card</h3>
+                <div class="form-group">
+                    <label for="customName">Recipient's Name:</label>
+                    <input type="text" id="customName" placeholder="Enter name">
+                </div>
+                <div class="form-group">
+                    <label for="customPic">Photo URL:</label>
+                    <input type="url" id="customPic" placeholder="https://example.com/photo.jpg">
+                </div>
+                <div class="form-group">
+                    <label for="customMessage">Select Message:</label>
+                    <select id="customMessage" class="message-select">
+                        <option value="random">Random Message</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Theme:</label>
+                    <div class="theme-selector-form">
+                        <button class="theme-btn-form theme-default" onclick="selectTheme('default')" aria-label="Default theme"></button>
+                        <button class="theme-btn-form theme-sunset-btn" onclick="selectTheme('theme-sunset')" aria-label="Sunset theme"></button>
+                        <button class="theme-btn-form theme-ocean-btn" onclick="selectTheme('theme-ocean')" aria-label="Ocean theme"></button>
+                        <button class="theme-btn-form theme-forest-btn" onclick="selectTheme('theme-forest')" aria-label="Forest theme"></button>
+                        <button class="theme-btn-form theme-royal-btn" onclick="selectTheme('theme-royal')" aria-label="Royal theme"></button>
+                    </div>
+                </div>
+                <button class="save-btn" id="saveBtn">Save & Create Share Link</button>
+            </div>
+            
+            <!-- Share Section -->
+            <div class="share-section" id="shareSection" style="display:none;">
+                <h3>Share This Card</h3>
+                <div class="share-url">
+                    <input type="text" id="shareUrl" readonly>
+                    <button class="copy-btn" id="copyBtn">Copy Link</button>
+                </div>
+                <button class="back-btn" id="backBtn">Customize Again</button>
+            </div>
+            
+            <button class="refresh-btn" id="refreshBtn" aria-label="Get another birthday wish">Another Random Wish ♻️</button>
         </div>
     </div>
 
