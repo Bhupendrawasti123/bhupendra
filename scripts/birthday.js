@@ -1,6 +1,6 @@
 // Birthday data
 const birthdayData = {
-    name: "....",
+    name: "...",
     pic: "https://i.imgur.com/JQWUQfZ.jpg",
     wishes: [
         {
