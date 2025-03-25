@@ -1,18 +1,24 @@
 /**
- * Birthday Card Application
- * Frontend implementation with JSON data loading
+ * Birthday Card Application with Scoring System
+ * Loads messages from /bhupendra/data/birthday.json
  */
 
 // Configuration
 const CONFIG = {
     defaultName: "Friend",
     defaultPic: "https://i.imgur.com/JQWUQfZ.jpg",
-    messagesFile: "../bhupendra/data/birthday.json",
+    messagesFile: "/bhupendra/data/birthday.json",
     sounds: {
         confetti: "https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3",
         message: "https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3",
         theme: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
         form: "https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3"
+    },
+    scoring: {
+        baseMultiplier: 1,
+        streakMultiplier: 0.5, // Additional 50% per streak
+        maxStreak: 5,
+        streakBonus: 20
     }
 };
 
@@ -23,7 +29,11 @@ const state = {
     messages: [],
     currentWish: null,
     isMuted: false,
-    audioElements: {}
+    audioElements: {},
+    score: 0,
+    streak: 0,
+    lastClickTime: 0,
+    streakTimeout: null
 };
 
 // DOM Elements
@@ -33,6 +43,11 @@ const elements = {
     birthdayPic: document.getElementById('birthdayPic'),
     birthdayMessage: document.getElementById('birthdayMessage'),
     themeIcon: document.getElementById('themeIcon'),
+    
+    // Score Elements
+    currentScore: document.getElementById('currentScore'),
+    currentStreak: document.getElementById('currentStreak'),
+    streakDisplay: document.querySelector('.streak-display'),
     
     // Form Elements
     customizeForm: document.getElementById('customizeForm'),
@@ -87,8 +102,14 @@ function loadFromURL() {
 async function loadMessages() {
     try {
         const response = await fetch(CONFIG.messagesFile);
-        if (!response.ok) throw new Error("Failed to fetch messages");
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
         state.messages = await response.json();
+        
+        // Verify loaded messages
+        if (!Array.isArray(state.messages) {
+            throw new Error("Invalid data format: expected array");
+        }
         
         // Initialize with random wish
         getRandomWish();
@@ -99,7 +120,8 @@ async function loadMessages() {
         state.messages = [{
             message: "Happy Birthday! Wishing you all the best!",
             icon: "🎉",
-            animation: "bounce-animation"
+            animation: "bounce-animation",
+            points: 10
         }];
         getRandomWish();
         initializeForm();
@@ -142,20 +164,15 @@ function initializeForm() {
     state.messages.forEach((wish, index) => {
         const option = document.createElement('option');
         option.value = index;
-        option.textContent = truncateText(wish.message, 50);
+        option.textContent = wish.message.length > 50 
+            ? wish.message.substring(0, 47) + "..." 
+            : wish.message;
         elements.userMessage.appendChild(option);
     });
     
     // Set form values
     elements.userName.value = state.name;
     elements.userPic.value = state.pic;
-}
-
-// Helper to truncate text with ellipsis
-function truncateText(text, maxLength) {
-    return text.length > maxLength 
-        ? text.substring(0, maxLength) + "..." 
-        : text;
 }
 
 // Change theme
@@ -197,6 +214,64 @@ function createConfetti() {
         
         setTimeout(() => confetti.remove(), 5000);
     }
+}
+
+// Update score display
+function updateScore(points) {
+    state.score += points;
+    elements.currentScore.textContent = state.score;
+    elements.currentScore.classList.add('score-pop');
+    setTimeout(() => {
+        elements.currentScore.classList.remove('score-pop');
+    }, 500);
+}
+
+// Update streak counter
+function updateStreak() {
+    const now = Date.now();
+    const streakWindow = 5000; // 5 seconds to maintain streak
+    
+    if (now - state.lastClickTime < streakWindow) {
+        state.streak = Math.min(state.streak + 1, CONFIG.scoring.maxStreak);
+    } else {
+        state.streak = 1;
+    }
+    
+    state.lastClickTime = now;
+    elements.currentStreak.textContent = state.streak;
+    
+    if (state.streak > 1) {
+        elements.streakDisplay.classList.add('streak-active');
+    } else {
+        elements.streakDisplay.classList.remove('streak-active');
+    }
+    
+    // Reset streak if no activity
+    clearTimeout(state.streakTimeout);
+    state.streakTimeout = setTimeout(() => {
+        state.streak = 0;
+        elements.currentStreak.textContent = '0';
+        elements.streakDisplay.classList.remove('streak-active');
+    }, streakWindow);
+}
+
+// Calculate points based on current streak
+function calculatePoints() {
+    if (!state.currentWish?.points) return 0;
+    
+    let points = state.currentWish.points * CONFIG.scoring.baseMultiplier;
+    
+    // Apply streak multiplier
+    if (state.streak > 1) {
+        points *= (1 + (CONFIG.scoring.streakMultiplier * (state.streak - 1)));
+    }
+    
+    // Apply streak bonus
+    if (state.streak >= CONFIG.scoring.maxStreak) {
+        points += CONFIG.scoring.streakBonus;
+    }
+    
+    return Math.floor(points);
 }
 
 // Setup all event listeners
@@ -243,7 +318,7 @@ function handleFormSubmit(e) {
         getRandomWish();
     } else {
         const selectedIndex = parseInt(elements.userMessage.value);
-        if (!isNaN(selectedIndex) {
+        if (!isNaN(selectedIndex) && selectedIndex >= 0 && selectedIndex < state.messages.length) {
             state.currentWish = state.messages[selectedIndex];
         }
     }
@@ -259,6 +334,15 @@ function handleFormSubmit(e) {
 function handleRefresh() {
     getRandomWish();
     applyWish();
+    
+    updateStreak();
+    const points = calculatePoints();
+    updateScore(points);
+    
+    // Extra confetti for high scores
+    if (points > state.currentWish?.points * 2) {
+        createConfetti();
+    }
 }
 
 function showCustomizeForm() {
