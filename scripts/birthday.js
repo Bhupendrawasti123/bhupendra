@@ -5,7 +5,7 @@
 
 // Configuration
 const CONFIG = {
-    defaultName: "Friend",
+    defaultName: "....",
     defaultPic: "https://i.imgur.com/JQWUQfZ.jpg",
     messagesFile: "/bhupendra/data/birthday.json",
     sounds: {
