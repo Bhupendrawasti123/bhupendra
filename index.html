@@ -25,27 +25,20 @@
         <div class="info-content">
             <span class="close-info" id="closeInfo">&times;</span>
             <h2>How This Website Works</h2>
-            <p>This birthday celebration website shows motivational messages that you can customize.</p>
+            <p>This birthday celebration website shows motivational messages loaded from a JSON file.</p>
             
             <h3>Features:</h3>
             <ul>
-                <li>Customizable name, photo, and message</li>
+                <li>Random birthday messages loaded from JSON</li>
                 <li>Multiple color themes</li>
-                <li>Shareable links</li>
+                <li>Customizable name and photo</li>
                 <li>Confetti celebration</li>
                 <li>Sound effects (can be muted)</li>
             </ul>
-            
-            <h3>How to Use:</h3>
-            <ol>
-                <li>Click "Customize" to personalize your card</li>
-                <li>After customizing, copy the shareable URL</li>
-                <li>Share the URL with friends and family</li>
-            </ol>
         </div>
     </div>
     
-    <!-- Birthday Modal -->
+    <!-- Birthday Card -->
     <div class="modal-overlay" id="birthdayModal">
         <div class="birthday-card">
             <div class="photo-frame">
@@ -91,15 +84,8 @@
                 </form>
             </div>
             
-            <!-- Share URL -->
-            <div class="share-url-container" id="shareUrlContainer">
-                <p>Share this birthday message:</p>
-                <input type="text" id="shareUrl" readonly>
-                <button class="copy-url-btn" id="copyUrlBtn">Copy</button>
-            </div>
-            
             <div class="card-actions">
-                <button class="refresh-btn" onclick="location.reload()">Another Wish ♻️</button>
+                <button class="refresh-btn" id="refreshBtn">Another Wish ♻️</button>
                 <button class="customize-btn" id="showCustomizeBtn">Customize ✏️</button>
             </div>
         </div>
