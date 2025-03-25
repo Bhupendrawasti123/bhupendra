@@ -25,27 +25,28 @@
         <div class="info-content">
             <span class="close-info" id="closeInfo">&times;</span>
             <h2>How This Website Works</h2>
-            <p>This birthday celebration website shows motivational messages that you can customize.</p>
+            <p>This birthday celebration website shows motivational messages with a fun scoring system!</p>
             
             <h3>Features:</h3>
             <ul>
-                <li>Customizable name, photo, and message</li>
+                <li>Customizable name and photo</li>
+                <li>Messages loaded from JSON</li>
                 <li>Multiple color themes</li>
-                <li>Shareable links</li>
                 <li>Confetti celebration</li>
                 <li>Sound effects (can be muted)</li>
+                <li>Scoring system with streaks</li>
             </ul>
             
-            <h3>How to Use:</h3>
-            <ol>
-                <li>Click "Customize" to personalize your card</li>
-                <li>After customizing, copy the shareable URL</li>
-                <li>Share the URL with friends and family</li>
-            </ol>
+            <h3>Scoring Rules:</h3>
+            <ul>
+                <li><strong>Base Points:</strong> 10 points per message</li>
+                <li><strong>Streak Bonus:</strong> 2x multiplier per consecutive click (max 5x)</li>
+                <li><strong>Max Streak:</strong> 20 bonus points at 5+ streak</li>
+            </ul>
         </div>
     </div>
     
-    <!-- Birthday Modal -->
+    <!-- Birthday Card -->
     <div class="modal-overlay" id="birthdayModal">
         <div class="birthday-card">
             <div class="photo-frame">
@@ -55,6 +56,18 @@
             <div class="theme-icon" id="themeIcon"></div>
             <h1 class="birthday-title">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
             <p class="birthday-message" id="birthdayMessage"></p>
+            
+            <!-- Score Display -->
+            <div class="score-container">
+                <div class="score-display">
+                    <span id="currentScore">0</span>
+                    <span class="score-label">Points</span>
+                </div>
+                <div class="streak-display">
+                    <span id="currentStreak">0</span>
+                    <span class="streak-label">Streak</span>
+                </div>
+            </div>
             
             <!-- Customization Form -->
             <div class="customize-form" id="customizeForm">
@@ -91,15 +104,8 @@
                 </form>
             </div>
             
-            <!-- Share URL -->
-            <div class="share-url-container" id="shareUrlContainer">
-                <p>Share this birthday message:</p>
-                <input type="text" id="shareUrl" readonly>
-                <button class="copy-url-btn" id="copyUrlBtn">Copy</button>
-            </div>
-            
             <div class="card-actions">
-                <button class="refresh-btn" onclick="location.reload()">Another Wish ♻️</button>
+                <button class="refresh-btn" id="refreshBtn">Another Wish ♻️</button>
                 <button class="customize-btn" id="showCustomizeBtn">Customize ✏️</button>
             </div>
         </div>
