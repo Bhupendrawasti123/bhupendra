@@ -2,121 +2,101 @@
     {
         "message": "Every year is another peak to conquer. May this birthday mark the beginning of your most victorious climb yet!",
         "icon": "⛰️",
-        "animation": "rotate-animation",
-        "points": 15
+        "animation": "rotate-animation"
     },
     {
         "message": "Like the phoenix, may you rise stronger with each passing year. Your best chapters are still being written!",
         "icon": "🔥",
-        "animation": "bounce-animation",
-        "points": 12
+        "animation": "bounce-animation"
     },
     {
         "message": "May this birthday point you toward your true north - where purpose meets passion and dreams become destinations!",
         "icon": "🧭",
-        "animation": "rotate-animation",
-        "points": 10
+        "animation": "rotate-animation"
     },
     {
         "message": "Today begins a new chapter in your extraordinary story. Make it one where obstacles become opportunities!",
         "icon": "📖",
-        "animation": "bounce-animation",
-        "points": 14
+        "animation": "bounce-animation"
     },
     {
         "message": "You've been a light for so many others - may this birthday illuminate your own brightest path forward!",
         "icon": "💡",
-        "animation": "rotate-animation",
-        "points": 11
+        "animation": "rotate-animation"
     },
     {
         "message": "The mightiest oaks grow from small seeds. Keep nurturing your potential - your growth inspires us all!",
         "icon": "🌳",
-        "animation": "bounce-animation",
-        "points": 13
+        "animation": "bounce-animation"
     },
     {
         "message": "Your potential is as limitless as the stars. Chart a course this year that makes the universe proud!",
         "icon": "🌌",
-        "animation": "rotate-animation",
-        "points": 16
+        "animation": "rotate-animation"
     },
     {
         "message": "Birthdays are bridges to better versions of ourselves. Step boldly onto yours - the view gets better ahead!",
         "icon": "🌉",
-        "animation": "bounce-animation",
-        "points": 10
+        "animation": "bounce-animation"
     },
     {
         "message": "Remember: Diamonds form under pressure. Every challenge you've faced has made you more brilliant!",
         "icon": "💎",
-        "animation": "rotate-animation",
-        "points": 18
+        "animation": "rotate-animation"
     },
     {
         "message": "May your coming year have just enough wind to be exciting, and just enough calm to enjoy the journey!",
         "icon": "⛵",
-        "animation": "bounce-animation",
-        "points": 12
+        "animation": "bounce-animation"
     },
     {
         "message": "Your life is your greatest masterpiece - keep adding bold strokes this year!",
         "icon": "🎨",
-        "animation": "rotate-animation",
-        "points": 15
+        "animation": "rotate-animation"
     },
     {
         "message": "Like a fine wine, you just keep getting better with time. Cheers to your vintage year!",
         "icon": "🍷",
-        "animation": "bounce-animation",
-        "points": 14
+        "animation": "bounce-animation"
     },
     {
         "message": "May your birthday sparkle with moments of love, laughter, and happy surprises!",
         "icon": "✨",
-        "animation": "rotate-animation",
-        "points": 10
+        "animation": "rotate-animation"
     },
     {
         "message": "You're not getting older, you're leveling up! What amazing power will you unlock this year?",
         "icon": "🎮",
-        "animation": "bounce-animation",
-        "points": 16
+        "animation": "bounce-animation"
     },
     {
         "message": "Birthdays are nature's way of telling us to eat more cake! Enjoy every delicious moment!",
         "icon": "🎂",
-        "animation": "rotate-animation",
-        "points": 12
+        "animation": "rotate-animation"
     },
     {
         "message": "Your smile is contagious, your spirit is inspiring - may your birthday be as wonderful as you are!",
         "icon": "😊",
-        "animation": "bounce-animation",
-        "points": 11
+        "animation": "bounce-animation"
     },
     {
         "message": "Today we celebrate the incredible person you are and the amazing person you're becoming!",
         "icon": "🌟",
-        "animation": "rotate-animation",
-        "points": 13
+        "animation": "rotate-animation"
     },
     {
         "message": "Like a shooting star, may your birthday wishes all come true in brilliant fashion!",
         "icon": "🌠",
-        "animation": "bounce-animation",
-        "points": 17
+        "animation": "bounce-animation"
     },
     {
         "message": "You're the CEO of your life - may this birthday bring a raise in happiness!",
         "icon": "💼",
-        "animation": "rotate-animation",
-        "points": 15
+        "animation": "rotate-animation"
     },
     {
         "message": "Age is merely the number of years the world has been enjoying you. Here's to many more!",
         "icon": "🎉",
-        "animation": "bounce-animation",
-        "points": 10
+        "animation": "bounce-animation"
     }
 ]
