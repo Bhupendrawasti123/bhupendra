@@ -1,231 +1,189 @@
-// Birthday data
-const birthdayData = {
-    name: "Friend",
-    pic: "https://i.imgur.com/JQWUQfZ.jpg",
-    wishes: [
-        {
-            message: "Every year is another peak to conquer. May this birthday mark the beginning of your most victorious climb yet!",
-            icon: "⛰️",
-            animation: "rotate-animation"
-        },
-        {
-            message: "Like the phoenix, may you rise stronger with each passing year. Your best chapters are still being written!",
-            icon: "🔥",
-            animation: "bounce-animation"
-        },
-        // ... (include all 20 messages from previous code)
-    ]
-};
+/**
+ * Birthday Card Application
+ * Frontend implementation with JSON data loading
+ */
 
-// Sound effects
-const soundEffects = {
-    confetti: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3'),
-    message: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3'),
-    theme: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3'),
-    form: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3')
-};
-
-// Get URL parameters
-const urlParams = new URLSearchParams(window.location.search);
-let randomWish;
-
-// Initialize the page
-function init() {
-    // Set from URL parameters if they exist
-    if (urlParams.get('name')) birthdayData.name = urlParams.get('name');
-    if (urlParams.get('pic')) birthdayData.pic = urlParams.get('pic');
-    
-    // Initialize form
-    initializeForm();
-    
-    // Set theme
-    const theme = urlParams.get('theme') || localStorage.getItem('birthdayTheme') || 'default';
-    changeTheme(theme);
-    document.getElementById('userTheme').value = theme;
-    
-    // Set message
-    if (urlParams.get('message')) {
-        const messageIndex = parseInt(urlParams.get('message'));
-        if (messageIndex >= 0 && messageIndex < birthdayData.wishes.length) {
-            randomWish = birthdayData.wishes[messageIndex];
-            document.getElementById('userMessage').value = messageIndex;
-        } else {
-            getRandomWish();
-        }
-    } else {
-        getRandomWish();
+// Configuration
+const CONFIG = {
+    defaultName: "Friend",
+    defaultPic: "https://i.imgur.com/JQWUQfZ.jpg",
+    messagesFile: "../bhupendra/data/birthday.json",
+    sounds: {
+        confetti: "https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3",
+        message: "https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3",
+        theme: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
+        form: "https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3"
     }
+};
+
+// Application State
+const state = {
+    name: CONFIG.defaultName,
+    pic: CONFIG.defaultPic,
+    messages: [],
+    currentWish: null,
+    isMuted: false,
+    audioElements: {}
+};
+
+// DOM Elements
+const elements = {
+    // Card Elements
+    birthdayName: document.getElementById('birthdayName'),
+    birthdayPic: document.getElementById('birthdayPic'),
+    birthdayMessage: document.getElementById('birthdayMessage'),
+    themeIcon: document.getElementById('themeIcon'),
     
-    // Apply the wish
+    // Form Elements
+    customizeForm: document.getElementById('customizeForm'),
+    userName: document.getElementById('userName'),
+    userPic: document.getElementById('userPic'),
+    userMessage: document.getElementById('userMessage'),
+    userTheme: document.getElementById('userTheme'),
+    birthdayForm: document.getElementById('birthdayForm'),
+    
+    // Button Elements
+    refreshBtn: document.getElementById('refreshBtn'),
+    showCustomizeBtn: document.getElementById('showCustomizeBtn'),
+    cancelCustomize: document.getElementById('cancelCustomize'),
+    
+    // Modal Elements
+    infoModal: document.getElementById('infoModal'),
+    infoBtn: document.getElementById('infoBtn'),
+    closeInfo: document.getElementById('closeInfo'),
+    
+    // Other UI Elements
+    muteBtn: document.getElementById('muteBtn'),
+    themeSelector: document.querySelector('.theme-selector')
+};
+
+// Initialize the application
+async function init() {
+    initializeAudio();
+    loadFromURL();
+    await loadMessages();
+    setupEventListeners();
     applyWish();
-    
-    // Show share URL if custom parameters exist
-    if (urlParams.toString()) {
-        generateShareUrl();
-    }
-    
-    // Start confetti
     createConfetti();
     setInterval(createConfetti, 3000);
 }
 
-// Get random wish
-function getRandomWish() {
-    soundEffects.message.currentTime = 0;
-    soundEffects.message.volume = 0.5;
-    soundEffects.message.play();
-    randomWish = birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+// Initialize audio elements
+function initializeAudio() {
+    for (const [key, url] of Object.entries(CONFIG.sounds)) {
+        state.audioElements[key] = new Audio(url);
+    }
 }
 
-// Apply wish to the page
-function applyWish() {
-    document.getElementById('birthdayName').textContent = birthdayData.name;
-    document.getElementById('birthdayPic').src = birthdayData.pic;
-    document.getElementById('birthdayMessage').textContent = randomWish.message;
+// Load data from URL parameters
+function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('name')) state.name = params.get('name');
+    if (params.get('pic')) state.pic = params.get('pic');
+    if (params.get('theme')) changeTheme(params.get('theme'));
+}
+
+// Load messages from JSON file
+async function loadMessages() {
+    try {
+        const response = await fetch(CONFIG.messagesFile);
+        if (!response.ok) throw new Error("Failed to fetch messages");
+        state.messages = await response.json();
+        
+        // Initialize with random wish
+        getRandomWish();
+        initializeForm();
+    } catch (error) {
+        console.error("Error loading messages:", error);
+        // Fallback to default messages
+        state.messages = [{
+            message: "Happy Birthday! Wishing you all the best!",
+            icon: "🎉",
+            animation: "bounce-animation"
+        }];
+        getRandomWish();
+        initializeForm();
+    }
+}
+
+// Get random wish from loaded messages
+function getRandomWish() {
+    if (state.messages.length === 0) return;
     
-    const themeIcon = document.getElementById('themeIcon');
-    themeIcon.textContent = randomWish.icon;
-    themeIcon.className = 'theme-icon ' + randomWish.animation;
+    playSound('message');
+    const randomIndex = Math.floor(Math.random() * state.messages.length);
+    state.currentWish = state.messages[randomIndex];
+    
+    // Update form selection if it exists
+    if (elements.userMessage) {
+        elements.userMessage.value = randomIndex;
+    }
+}
+
+// Apply current wish to the UI
+function applyWish() {
+    elements.birthdayName.textContent = state.name;
+    elements.birthdayPic.src = state.pic;
+    elements.birthdayMessage.textContent = state.currentWish?.message || "Happy Birthday!";
+    elements.themeIcon.textContent = state.currentWish?.icon || "🎂";
+    elements.themeIcon.className = `theme-icon ${state.currentWish?.animation || "bounce-animation"}`;
+}
+
+// Initialize form with messages
+function initializeForm() {
+    if (!elements.userMessage) return;
+    
+    // Clear existing options except the first one
+    while (elements.userMessage.options.length > 1) {
+        elements.userMessage.remove(1);
+    }
+    
+    // Add all messages as options
+    state.messages.forEach((wish, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = truncateText(wish.message, 50);
+        elements.userMessage.appendChild(option);
+    });
+    
+    // Set form values
+    elements.userName.value = state.name;
+    elements.userPic.value = state.pic;
+}
+
+// Helper to truncate text with ellipsis
+function truncateText(text, maxLength) {
+    return text.length > maxLength 
+        ? text.substring(0, maxLength) + "..." 
+        : text;
 }
 
 // Change theme
 function changeTheme(theme) {
-    soundEffects.theme.currentTime = 0;
-    soundEffects.theme.volume = 0.3;
-    soundEffects.theme.play();
+    playSound('theme');
     document.body.className = theme;
+    if (elements.userTheme) {
+        elements.userTheme.value = theme;
+    }
     localStorage.setItem('birthdayTheme', theme);
 }
 
-// Initialize form
-function initializeForm() {
-    const messageSelect = document.getElementById('userMessage');
+// Play sound with current volume
+function playSound(soundKey) {
+    if (state.isMuted || !state.audioElements[soundKey]) return;
     
-    // Clear existing options except the first one
-    while (messageSelect.options.length > 1) {
-        messageSelect.remove(1);
-    }
+    const sound = state.audioElements[soundKey];
+    sound.currentTime = 0;
+    sound.volume = soundKey === 'message' ? 0.5 : 0.3;
     
-    // Add all messages as options
-    birthdayData.wishes.forEach((wish, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = wish.message.substring(0, 50) + '...';
-        messageSelect.appendChild(option);
+    sound.play().catch(error => {
+        console.log("Audio playback error:", error);
     });
-    
-    // Set form values
-    document.getElementById('userName').value = birthdayData.name;
-    document.getElementById('userPic').value = birthdayData.pic;
 }
 
-// Form submission
-document.getElementById('birthdayForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    soundEffects.form.currentTime = 0;
-    soundEffects.form.volume = 0.4;
-    soundEffects.form.play();
-    
-    // Get form values
-    birthdayData.name = document.getElementById('userName').value || "Friend";
-    birthdayData.pic = document.getElementById('userPic').value || "https://i.imgur.com/JQWUQfZ.jpg";
-    
-    const messageIndex = document.getElementById('userMessage').value;
-    if (messageIndex === 'random') {
-        getRandomWish();
-    } else {
-        randomWish = birthdayData.wishes[messageIndex];
-    }
-    
-    // Apply theme
-    const theme = document.getElementById('userTheme').value;
-    changeTheme(theme);
-    
-    // Update the card
-    applyWish();
-    
-    // Hide form and show share URL
-    document.getElementById('customizeForm').style.display = 'none';
-    generateShareUrl();
-});
-
-// Generate share URL
-function generateShareUrl() {
-    const shareUrl = new URL(window.location.href);
-    
-    // Set parameters
-    shareUrl.searchParams.set('name', birthdayData.name);
-    shareUrl.searchParams.set('pic', birthdayData.pic);
-    shareUrl.searchParams.set('theme', document.body.className);
-    
-    // If specific message was selected, include its index
-    const messageSelect = document.getElementById('userMessage');
-    if (messageSelect.value !== 'random') {
-        shareUrl.searchParams.set('message', messageSelect.value);
-    } else {
-        shareUrl.searchParams.delete('message');
-    }
-    
-    // Display the URL
-    document.getElementById('shareUrl').value = shareUrl.toString();
-    document.getElementById('shareUrlContainer').style.display = 'block';
-}
-
-// Copy URL to clipboard
-document.getElementById('copyUrlBtn').addEventListener('click', function() {
-    const shareUrl = document.getElementById('shareUrl');
-    shareUrl.select();
-    document.execCommand('copy');
-    
-    // Show feedback
-    const originalText = this.textContent;
-    this.textContent = 'Copied!';
-    setTimeout(() => {
-        this.textContent = originalText;
-    }, 2000);
-});
-
-// Show customization form
-document.getElementById('showCustomizeBtn').addEventListener('click', function() {
-    soundEffects.form.currentTime = 0;
-    soundEffects.form.volume = 0.4;
-    soundEffects.form.play();
-    
-    document.getElementById('shareUrlContainer').style.display = 'none';
-    document.getElementById('customizeForm').style.display = 'block';
-});
-
-// Cancel customization
-document.getElementById('cancelCustomize').addEventListener('click', function() {
-    document.getElementById('customizeForm').style.display = 'none';
-});
-
-// Info button
-document.getElementById('infoBtn').addEventListener('click', function() {
-    document.getElementById('infoModal').style.display = 'flex';
-});
-
-document.getElementById('closeInfo').addEventListener('click', function() {
-    document.getElementById('infoModal').style.display = 'none';
-});
-
-// Close modals when clicking outside
-window.addEventListener('click', function(event) {
-    if (event.target == document.getElementById('infoModal')) {
-        document.getElementById('infoModal').style.display = 'none';
-    }
-    if (event.target == document.getElementById('customizeForm')) {
-        document.getElementById('customizeForm').style.display = 'none';
-    }
-});
-
-// Create confetti
+// Create confetti effect
 function createConfetti() {
-    soundEffects.confetti.currentTime = 0;
-    soundEffects.confetti.volume = 0.3;
-    soundEffects.confetti.play();
-    
+    playSound('confetti');
     const colors = ['var(--primary)', 'var(--secondary)', 'var(--accent)', '#ff9ff3', '#a29bfe'];
     
     for (let i = 0; i < 20; i++) {
@@ -237,44 +195,123 @@ function createConfetti() {
         confetti.style.animationDelay = (Math.random() * 2) + 's';
         document.body.appendChild(confetti);
         
-        setTimeout(() => {
-            confetti.remove();
-        }, 5000);
+        setTimeout(() => confetti.remove(), 5000);
     }
 }
 
-// Mute button
-let isMuted = false;
-document.getElementById('muteBtn').addEventListener('click', function() {
-    isMuted = !isMuted;
-    this.textContent = isMuted ? '🔇' : '🔊';
-    Object.values(soundEffects).forEach(sound => {
-        sound.volume = isMuted ? 0 : (sound === soundEffects.message ? 0.5 : 0.3);
-    });
-});
-
-// Theme buttons
-document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.getElementById('userTheme').value = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-    });
-});
-
-// Handle image errors
-document.getElementById('birthdayPic').onerror = function() {
-    this.src = "https://i.imgur.com/JQWUQfZ.jpg";
-};
-
-// Initialize the page
-window.onload = init;
-
-// Keyboard controls
-document.addEventListener('keydown', function(e) {
-    if (e.code === 'Space') {
-        location.reload();
+// Setup all event listeners
+function setupEventListeners() {
+    // Form submission
+    elements.birthdayForm?.addEventListener('submit', handleFormSubmit);
+    
+    // Button events
+    elements.refreshBtn?.addEventListener('click', handleRefresh);
+    elements.showCustomizeBtn?.addEventListener('click', showCustomizeForm);
+    elements.cancelCustomize?.addEventListener('click', hideCustomizeForm);
+    elements.muteBtn?.addEventListener('click', toggleMute);
+    
+    // Info modal
+    elements.infoBtn?.addEventListener('click', showInfoModal);
+    elements.closeInfo?.addEventListener('click', hideInfoModal);
+    window.addEventListener('click', handleOutsideClick);
+    
+    // Theme buttons
+    if (elements.themeSelector) {
+        elements.themeSelector.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', handleThemeButtonClick);
+        });
     }
-    if (e.key === 'Escape') {
-        document.getElementById('customizeForm').style.display = 'none';
-        document.getElementById('infoModal').style.display = 'none';
+    
+    // Image error handling
+    elements.birthdayPic.onerror = handleImageError;
+    
+    // Keyboard controls
+    document.addEventListener('keydown', handleKeyDown);
+}
+
+// Event Handlers
+function handleFormSubmit(e) {
+    e.preventDefault();
+    playSound('form');
+    
+    // Update state from form
+    state.name = elements.userName.value || CONFIG.defaultName;
+    state.pic = elements.userPic.value || CONFIG.defaultPic;
+    
+    // Get selected message
+    if (elements.userMessage.value === 'random') {
+        getRandomWish();
+    } else {
+        const selectedIndex = parseInt(elements.userMessage.value);
+        if (!isNaN(selectedIndex) {
+            state.currentWish = state.messages[selectedIndex];
+        }
     }
-});
+    
+    // Apply theme
+    changeTheme(elements.userTheme.value);
+    
+    // Update UI
+    applyWish();
+    hideCustomizeForm();
+}
+
+function handleRefresh() {
+    getRandomWish();
+    applyWish();
+}
+
+function showCustomizeForm() {
+    playSound('form');
+    elements.customizeForm.style.display = 'block';
+}
+
+function hideCustomizeForm() {
+    elements.customizeForm.style.display = 'none';
+}
+
+function toggleMute() {
+    state.isMuted = !state.isMuted;
+    elements.muteBtn.textContent = state.isMuted ? '🔇' : '🔊';
+}
+
+function showInfoModal() {
+    elements.infoModal.style.display = 'flex';
+}
+
+function hideInfoModal() {
+    elements.infoModal.style.display = 'none';
+}
+
+function handleOutsideClick(event) {
+    if (event.target === elements.infoModal) {
+        hideInfoModal();
+    }
+    if (event.target === elements.customizeForm) {
+        hideCustomizeForm();
+    }
+}
+
+function handleThemeButtonClick() {
+    const theme = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+    elements.userTheme.value = theme;
+}
+
+function handleImageError() {
+    this.src = CONFIG.defaultPic;
+}
+
+function handleKeyDown(e) {
+    switch (e.key) {
+        case ' ':
+            handleRefresh();
+            break;
+        case 'Escape':
+            hideCustomizeForm();
+            hideInfoModal();
+            break;
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', init);
