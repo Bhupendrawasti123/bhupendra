@@ -132,10 +132,36 @@ body {
     animation: float 3s ease-in-out infinite;
 }
 
-.birthday-name {
-    color: var(--primary);
-    font-weight: 700;
-    transition: color 0.5s ease;
+/* Scoring System */
+.score-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    gap: 15px;
+}
+
+.score-display, .streak-display {
+    background: rgba(255,255,255,0.2);
+    padding: 10px 15px;
+    border-radius: 20px;
+    text-align: center;
+    min-width: 80px;
+    transition: transform 0.3s ease;
+}
+
+.score-display span:first-child,
+.streak-display span:first-child {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent);
+    display: block;
+}
+
+.score-label, .streak-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* Customization Form */
@@ -432,6 +458,26 @@ body {
     50% { transform: translateY(-15px); }
 }
 
+@keyframes scorePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes streakGlow {
+    0% { box-shadow: 0 0 5px var(--accent); }
+    50% { box-shadow: 0 0 15px var(--accent); }
+    100% { box-shadow: 0 0 5px var(--accent); }
+}
+
+.score-pop {
+    animation: scorePop 0.5s ease;
+}
+
+.streak-active {
+    animation: streakGlow 1s infinite;
+}
+
 .rotate-animation {
     animation: rotate 10s linear infinite;
 }
@@ -440,7 +486,7 @@ body {
     animation: bounce 2s ease infinite;
 }
 
-/* Responsive Adjustments */
+/* Responsive Design */
 @media (max-width: 600px) {
     .birthday-card {
         padding: 30px 20px;
@@ -465,5 +511,10 @@ body {
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
+    }
+    
+    .score-container {
+        flex-direction: column;
+        gap: 10px;
     }
 }
