@@ -7,7 +7,7 @@
 const CONFIG = {
     defaultName: "....",
     defaultPic: "https://i.imgur.com/JQWUQfZ.jpg",
-    messagesFile: ".../bhupendra/data/birthday.json",
+    messagesFile: "https://bhupendrawasti123.github.io/bhupendra/data/birthday.json",
     sounds: {
         confetti: "https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3",
         message: "https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3",
