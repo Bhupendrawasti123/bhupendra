@@ -110,7 +110,8 @@ const birthdayData = {
 const soundEffects = {
     confetti: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3'),
     message: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3'),
-    theme: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3')
+    theme: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3'),
+    form: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3')
 };
 
 // Get parameters from URL
@@ -156,6 +157,76 @@ function changeTheme(theme) {
     window.history.pushState({}, '', newUrl);
 }
 
+// Initialize form with messages
+function initializeForm() {
+    const messageSelect = document.getElementById('userMessage');
+    
+    // Clear existing options except the first one
+    while (messageSelect.options.length > 1) {
+        messageSelect.remove(1);
+    }
+    
+    // Add all messages as options
+    birthdayData.wishes.forEach((wish, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = wish.message.substring(0, 50) + '...';
+        messageSelect.appendChild(option);
+    });
+}
+
+// Form submission handler
+document.getElementById('birthdayForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    soundEffects.form.currentTime = 0;
+    soundEffects.form.volume = 0.4;
+    soundEffects.form.play();
+    
+    // Get form values
+    const name = document.getElementById('userName').value || birthdayData.name;
+    const pic = document.getElementById('userPic').value || birthdayData.pic;
+    const messageIndex = document.getElementById('userMessage').value;
+    const theme = document.getElementById('userTheme').value;
+    
+    // Update birthday data
+    birthdayData.name = name;
+    birthdayData.pic = pic;
+    
+    // Set selected message or random
+    if (messageIndex === 'random') {
+        randomWish = birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+    } else {
+        randomWish = birthdayData.wishes[messageIndex];
+    }
+    
+    // Apply theme
+    changeTheme(theme);
+    
+    // Apply the customizations
+    applyWish();
+    
+    // Hide form
+    document.getElementById('customizeForm').style.display = 'none';
+    
+    // Show birthday card if hidden
+    document.getElementById('birthdayModal').style.display = 'flex';
+});
+
+// Customize button functionality
+document.getElementById('customizeBtn').addEventListener('click', function() {
+    soundEffects.form.currentTime = 0;
+    soundEffects.form.volume = 0.4;
+    soundEffects.form.play();
+    
+    // Populate form with current values
+    document.getElementById('userName').value = birthdayData.name;
+    document.getElementById('userPic').value = birthdayData.pic;
+    
+    // Show form
+    document.getElementById('customizeForm').style.display = 'block';
+});
+
 // Info button functionality
 document.getElementById('infoBtn').addEventListener('click', function() {
     document.getElementById('infoModal').style.display = 'flex';
@@ -165,8 +236,11 @@ document.getElementById('closeInfo').addEventListener('click', function() {
     document.getElementById('infoModal').style.display = 'none';
 });
 
-// Close info modal when clicking outside
+// Close form when clicking outside
 window.addEventListener('click', function(event) {
+    if (event.target == document.getElementById('customizeForm')) {
+        document.getElementById('customizeForm').style.display = 'none';
+    }
     if (event.target == document.getElementById('infoModal')) {
         document.getElementById('infoModal').style.display = 'none';
     }
@@ -242,6 +316,7 @@ document.getElementById('muteBtn').addEventListener('click', function() {
 });
 
 // Initial setup
+initializeForm();
 getRandomWish();
 
 // Create confetti on load and every 3 seconds
@@ -250,8 +325,18 @@ window.onload = function() {
     const savedTheme = localStorage.getItem('birthdayTheme');
     if (savedTheme) {
         document.body.className = savedTheme;
+        document.getElementById('userTheme').value = savedTheme;
     } else if (urlParams.get('theme')) {
         document.body.className = urlParams.get('theme');
+        document.getElementById('userTheme').value = urlParams.get('theme');
+    }
+    
+    // Set name and pic from URL if they exist
+    if (urlParams.get('name')) {
+        document.getElementById('userName').value = urlParams.get('name');
+    }
+    if (urlParams.get('pic')) {
+        document.getElementById('userPic').value = urlParams.get('pic');
     }
     
     createConfetti();
@@ -302,7 +387,12 @@ document.getElementById('infoBtn').addEventListener('keydown', function(e) {
 
 // Close modal with Escape key
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && document.getElementById('infoModal').style.display === 'flex') {
-        document.getElementById('infoModal').style.display = 'none';
+    if (e.key === 'Escape') {
+        if (document.getElementById('infoModal').style.display === 'flex') {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+        if (document.getElementById('customizeForm').style.display === 'block') {
+            document.getElementById('customizeForm').style.display = 'none';
+        }
     }
 });
