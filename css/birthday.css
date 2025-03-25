@@ -1,0 +1,353 @@
+:root {
+    --primary: #ff6b6b;
+    --secondary: #4ecdc4;
+    --accent: #ffe66d;
+    --text: #333;
+    --bg: #f8f9fa;
+    --card-bg: white;
+}
+
+/* Color Schemes */
+.theme-sunset {
+    --primary: #ff6b6b;
+    --secondary: #ffb347;
+    --accent: #ffcc33;
+    --text: #5E4B3C;
+    --bg: #FFF5EB;
+    --card-bg: #FFF9F0;
+}
+
+.theme-ocean {
+    --primary: #4ecdc4;
+    --secondary: #5563de;
+    --accent: #a18cd1;
+    --text: #2C3E50;
+    --bg: #f0f8ff;
+    --card-bg: #e6f9ff;
+}
+
+.theme-forest {
+    --primary: #2e8b57;
+    --secondary: #3cb371;
+    --accent: #98fb98;
+    --text: #2F4F4F;
+    --bg: #F0FFF0;
+    --card-bg: #F5FFFA;
+}
+
+.theme-royal {
+    --primary: #6a5acd;
+    --secondary: #9370db;
+    --accent: #ba55d3;
+    --text: #483D8B;
+    --bg: #F8F8FF;
+    --card-bg: #E6E6FA;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: background-color 0.5s ease;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.8s ease-out;
+    backdrop-filter: blur(1px);
+}
+
+.birthday-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    padding: 40px 30px;
+    box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: slideUp 0.8s ease-out;
+    overflow: hidden;
+    transition: all 0.5s ease;
+}
+
+.photo-frame {
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 25px;
+    border-radius: 50%;
+    padding: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: all 0.5s ease;
+    animation: pulse 2s infinite;
+}
+
+.birthday-pic {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    transition: all 0.5s ease;
+}
+
+.birthday-title {
+    font-size: 2.2rem;
+    color: var(--text);
+    margin: 10px 0;
+    font-weight: 700;
+    line-height: 1.2;
+    transition: color 0.5s ease;
+}
+
+.birthday-message {
+    font-size: 1.2rem;
+    color: var(--text);
+    margin: 20px 0;
+    line-height: 1.6;
+    min-height: 80px;
+    transition: color 0.5s ease;
+}
+
+.theme-icon {
+    font-size: 3rem;
+    margin: 15px 0;
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+}
+
+.birthday-name {
+    color: var(--primary);
+    font-weight: 700;
+    transition: color 0.5s ease;
+}
+
+.confetti {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: var(--primary);
+    border-radius: 50%;
+    animation: confettiFall 5s linear infinite;
+    z-index: 1001;
+}
+
+.refresh-btn {
+    background: var(--secondary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s;
+}
+
+.refresh-btn:hover {
+    background: var(--primary);
+    transform: translateY(-2px);
+}
+
+/* Info Button Styles */
+.info-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: var(--secondary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 2000;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+}
+
+.info-btn:hover {
+    background: var(--primary);
+    transform: scale(1.1);
+}
+
+/* Info Modal Styles */
+.info-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.info-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+.close-info {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.info-content h2 {
+    color: var(--primary);
+    margin-top: 0;
+}
+
+/* Theme Selector - Left Side */
+.theme-selector {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 2000;
+    background: rgba(255,255,255,0.7);
+    padding: 10px;
+    border-radius: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.theme-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid white;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+}
+
+.theme-btn:hover {
+    transform: scale(1.1);
+}
+
+.theme-default { background: linear-gradient(135deg, #ff6b6b, #4ecdc4); }
+.theme-sunset-btn { background: linear-gradient(135deg, #ff6b6b, #ffb347); }
+.theme-ocean-btn { background: linear-gradient(135deg, #4ecdc4, #5563de); }
+.theme-forest-btn { background: linear-gradient(135deg, #2e8b57, #3cb371); }
+.theme-royal-btn { background: linear-gradient(135deg, #6a5acd, #9370db); }
+
+/* Share Button */
+.share-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--secondary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    z-index: 2000;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+}
+
+.share-btn:hover {
+    background: var(--primary);
+    transform: translateY(-2px);
+}
+
+/* Mute Button */
+.mute-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(255,255,255,0.7);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 2000;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes confettiFall {
+    0% { 
+        transform: translateY(-100vh) rotate(0deg); 
+        opacity: 1;
+    }
+    100% { 
+        transform: translateY(100vh) rotate(360deg); 
+        opacity: 0;
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.rotate-animation {
+    animation: rotate 10s linear infinite;
+}
+
+.bounce-animation {
+    animation: bounce 2s ease infinite;
+}
