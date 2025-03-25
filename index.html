@@ -3,97 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive birthday celebration website with customizable themes">
     <title>Happy Birthday Wishes</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Critical CSS for initial render */
+        .modal-overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .birthday-card {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .info-modal {
+            display: none;
+        }
+    </style>
     <link href="css/birthday.css" rel="stylesheet">
 </head>
 <body class="default">
     <!-- Info Button -->
-    <div class="info-btn" id="infoBtn">i</div>
+    <button class="info-btn" id="infoBtn" aria-label="Website information">
+        <i class="fas fa-info"></i>
+    </button>
     
     <!-- Theme Selector -->
-    <div class="theme-selector">
-        <div class="theme-btn theme-default" onclick="changeTheme('default')"></div>
-        <div class="theme-btn theme-sunset-btn" onclick="changeTheme('theme-sunset')"></div>
-        <div class="theme-btn theme-ocean-btn" onclick="changeTheme('theme-ocean')"></div>
-        <div class="theme-btn theme-forest-btn" onclick="changeTheme('theme-forest')"></div>
-        <div class="theme-btn theme-royal-btn" onclick="changeTheme('theme-royal')"></div>
+    <div class="theme-selector" aria-label="Color theme selector">
+        <button class="theme-btn theme-default" onclick="selectTheme('default')" aria-label="Default theme"></button>
+        <button class="theme-btn theme-sunset-btn" onclick="selectTheme('theme-sunset')" aria-label="Sunset theme"></button>
+        <button class="theme-btn theme-ocean-btn" onclick="selectTheme('theme-ocean')" aria-label="Ocean theme"></button>
+        <button class="theme-btn theme-forest-btn" onclick="selectTheme('theme-forest')" aria-label="Forest theme"></button>
+        <button class="theme-btn theme-royal-btn" onclick="selectTheme('theme-royal')" aria-label="Royal theme"></button>
     </div>
     
     <!-- Info Modal -->
-    <div class="info-modal" id="infoModal">
+    <div class="info-modal" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="info-content">
-            <span class="close-info" id="closeInfo">&times;</span>
-            <h2>How This Website Works</h2>
-            <p>This birthday celebration website shows motivational messages loaded from a JSON file.</p>
+            <button class="close-info" id="closeInfo" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 id="modalTitle"><i class="fas fa-question-circle"></i> How This Works</h2>
+            <p>Create personalized birthday cards with custom messages, photos, and themes.</p>
             
-            <h3>Features:</h3>
+            <h3><i class="fas fa-star"></i> Features:</h3>
             <ul>
-                <li>Random birthday messages loaded from JSON</li>
-                <li>Multiple color themes</li>
-                <li>Customizable name and photo</li>
-                <li>Confetti celebration</li>
-                <li>Sound effects (can be muted)</li>
+                <li><i class="fas fa-check"></i> Choose from beautiful messages or create your own</li>
+                <li><i class="fas fa-check"></i> Add recipient's name and photo</li>
+                <li><i class="fas fa-check"></i> Select from multiple color themes</li>
+                <li><i class="fas fa-check"></i> Generate shareable links</li>
+                <li><i class="fas fa-check"></i> Share via WhatsApp, Email, or copy link</li>
             </ul>
+            
+            <div class="tips">
+                <h3><i class="fas fa-lightbulb"></i> Pro Tip:</h3>
+                <p>Use high-quality square images for best results in the circular frame.</p>
+            </div>
         </div>
     </div>
     
     <!-- Birthday Card -->
-    <div class="modal-overlay" id="birthdayModal">
+    <div class="modal-overlay" id="birthdayModal" role="dialog" aria-modal="true" aria-labelledby="birthdayHeading">
         <div class="birthday-card">
-            <div class="photo-frame">
-                <img src="" alt="Birthday Person" class="birthday-pic" id="birthdayPic">
+            <div class="photo-frame" aria-hidden="true">
+                <img src="" alt="" class="birthday-pic" id="birthdayPic" aria-hidden="true">
             </div>
             
-            <div class="theme-icon" id="themeIcon"></div>
-            <h1 class="birthday-title">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
-            <p class="birthday-message" id="birthdayMessage"></p>
+            <div class="theme-icon" id="themeIcon" aria-hidden="true"></div>
+            <h1 class="birthday-title" id="birthdayHeading">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
+            <p class="birthday-message" id="birthdayMessage" aria-live="polite"></p>
             
             <!-- Customization Form -->
             <div class="customize-form" id="customizeForm">
-                <h3>Customize Your Card</h3>
-                <form id="birthdayForm">
+                <h3><i class="fas fa-cog"></i> Personalize This Card</h3>
+                
+                <div class="form-grid">
                     <div class="form-group">
-                        <label for="userName">Name:</label>
-                        <input type="text" id="userName" placeholder="Enter name">
+                        <label for="customName"><i class="fas fa-user"></i> Recipient's Name</label>
+                        <input type="text" id="customName" placeholder="Enter name">
                     </div>
+                    
                     <div class="form-group">
-                        <label for="userPic">Photo URL:</label>
-                        <input type="url" id="userPic" placeholder="https://example.com/photo.jpg">
+                        <label for="customPic"><i class="fas fa-camera"></i> Photo URL</label>
+                        <div class="input-with-preview">
+                            <input type="url" id="customPic" placeholder="https://example.com/photo.jpg">
+                            <div class="image-preview" id="imagePreview"></div>
+                        </div>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="userMessage">Message:</label>
-                        <select id="userMessage">
-                            <option value="random">Random Message</option>
+                        <label for="customMessage"><i class="fas fa-comment-alt"></i> Select Message</label>
+                        <select id="customMessage" class="message-select">
+                            <option value="random">🎲 Random Message</option>
                         </select>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="userTheme">Theme:</label>
-                        <select id="userTheme">
-                            <option value="default">Default</option>
-                            <option value="theme-sunset">Sunset</option>
-                            <option value="theme-ocean">Ocean</option>
-                            <option value="theme-forest">Forest</option>
-                            <option value="theme-royal">Royal</option>
-                        </select>
+                        <label><i class="fas fa-palette"></i> Select Theme</label>
+                        <div class="theme-selector-form">
+                            <button type="button" class="theme-btn-form theme-default active-theme" 
+                                    onclick="selectTheme('default')" aria-label="Default theme"></button>
+                            <button type="button" class="theme-btn-form theme-sunset-btn" 
+                                    onclick="selectTheme('theme-sunset')" aria-label="Sunset theme"></button>
+                            <button type="button" class="theme-btn-form theme-ocean-btn" 
+                                    onclick="selectTheme('theme-ocean')" aria-label="Ocean theme"></button>
+                            <button type="button" class="theme-btn-form theme-forest-btn" 
+                                    onclick="selectTheme('theme-forest')" aria-label="Forest theme"></button>
+                            <button type="button" class="theme-btn-form theme-royal-btn" 
+                                    onclick="selectTheme('theme-royal')" aria-label="Royal theme"></button>
+                        </div>
                     </div>
-                    <div class="form-actions">
-                        <button type="submit" class="form-submit-btn">Update</button>
-                        <button type="button" class="form-cancel-btn" id="cancelCustomize">Cancel</button>
-                    </div>
-                </form>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="save-btn" id="saveBtn">
+                        <i class="fas fa-link"></i> Create Shareable Link
+                    </button>
+                </div>
             </div>
             
-            <div class="card-actions">
-                <button class="refresh-btn" id="refreshBtn">Another Wish ♻️</button>
-                <button class="customize-btn" id="showCustomizeBtn">Customize ✏️</button>
+            <!-- Share Section -->
+            <div class="share-section" id="shareSection" style="display:none;">
+                <h3><i class="fas fa-share-alt"></i> Share This Card</h3>
+                
+                <div class="share-container">
+                    <div class="share-url-group">
+                        <input type="text" id="shareUrl" readonly>
+                        <button class="copy-btn" id="copyBtn">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    
+                    <div class="share-buttons">
+                        <button class="social-share-btn whatsapp-btn" onclick="shareOnWhatsApp()">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button class="social-share-btn email-btn" onclick="shareViaEmail()">
+                            <i class="fas fa-envelope"></i> Email
+                        </button>
+                    </div>
+                    
+                    <button class="back-btn" id="backBtn">
+                        <i class="fas fa-edit"></i> Customize Again
+                    </button>
+                </div>
             </div>
+            
+            <button class="refresh-btn" id="refreshBtn" aria-label="Get another birthday wish">
+                <i class="fas fa-random"></i> Another Random Wish
+            </button>
         </div>
     </div>
 
-    <!-- Mute Button -->
-    <div class="mute-btn" id="muteBtn">🔊</div>
-
-    <script src="scripts/birthday.js"></script>
+    <!-- Preload default image -->
+    <link rel="preload" href="https://i.imgur.com/JQWUQfZ.jpg" as="image">
+    
+    <script src="scripts/birthday.js" defer></script>
 </body>
 </html>
