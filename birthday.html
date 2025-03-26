@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Wishes Creator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF7EB9;
+            --secondary: #7AF1FA;
+            --accent: #FFD166;
+            --text: #2E2E2E;
+            --bg: #F9F7FE;
+            --card-bg: white;
+            --form-bg: #FFFFFF;
+            --error: #FF6B6B;
+            --success: #4CAF50;
+            --save-btn: #4CAF50;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(255, 126, 185, 0.1) 0%, rgba(122, 241, 250, 0.1) 90%);
+        }
+
+        .birthday-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .birthday-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .birthday-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .birthday-display {
+            display: none;
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .photo-frame {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-frame:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        .birthday-pic {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary);
+            animation: spin 1.2s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .birthday-title {
+            font-size: 2.5rem;
+            color: var(--text);
+            margin: 20px 0 10px;
+            font-weight: 700;
+            font-family: 'Dancing Script', cursive;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .birthday-message {
+            font-size: 1.2rem;
+            color: var(--text);
+            margin: 25px 0;
+            line-height: 1.7;
+            position: relative;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .birthday-message::before {
+            content: '"';
+            font-size: 4rem;
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            color: rgba(255, 126, 185, 0.2);
+            font-family: serif;
+            line-height: 1;
+        }
+
+        .theme-icon {
+            font-size: 3rem;
+            margin: 20px 0;
+            text-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .save-card-btn {
+            background: linear-gradient(45deg, var(--save-btn), #2E7D32);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .save-card-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .save-card-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .customize-form {
+            display: block;
+            animation: fadeIn 0.5s ease;
+            background-color: var(--form-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 126, 185, 0.2);
+        }
+
+        .customize-form::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                #FF7EB9, #7AF1FA, #FFD166, #A162E8, #6B73FF);
+            background-size: 300% 300%;
+            animation: gradientBG 3s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .form-header h3 {
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .form-header h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+
+        .form-header::before {
+            content: "🎉";
+            position: absolute;
+            font-size: 2rem;
+            left: 20px;
+            top: -15px;
+            transform: rotate(-20deg);
+            z-index: 1;
+        }
+
+        .form-header::after {
+            content: "🎂";
+            position: absolute;
+            font-size: 2rem;
+            right: 20px;
+            top: -15px;
+            transform: rotate(15deg);
+            z-index: 1;
+        }
+
+        .birthday-element {
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            z-index: 0;
+            animation: floatElement 8s infinite linear;
+        }
+
+        @keyframes floatElement {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 126, 185, 0.2);
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23FF7EB9' fill-opacity='0.1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        input.error {
+            border-color: var(--error);
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-actions {
+            margin-top: 40px;
+        }
+
+        button {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        #generateBtn:hover {
+            background: linear-gradient(45deg, 
+                #FF7EB9, #7AF1FA, #FFD166);
+            background-size: 200% 200%;
+            animation: gradientBG 1.5s ease infinite;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .share-section {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .share-url-container {
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .info-button {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            background: #f0f0f0;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .info-button:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .info-tooltip {
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            z-index: 100;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .info-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 15px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+
+        .info-tooltip p {
+            margin: 0 0 10px 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .info-tooltip p:last-child {
+            margin-bottom: 0;
+        }
+
+        .share-url-label {
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: block;
+            color: var(--text);
+            font-size: 1.1rem;
+        }
+
+        .share-url-value {
+            word-break: break-all;
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .share-url-value:hover {
+            background: #f0f0f0;
+        }
+
+        .share-url-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .copy-btn {
+            background: linear-gradient(45deg, #6B73FF, #000DFF);
+            flex: 1;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--accent), #FFB347);
+            color: var(--text);
+        }
+
+        .success-message {
+            display: none;
+            background-color: var(--success);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .balloon {
+            position: absolute;
+            width: 40px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.7;
+            z-index: -1;
+            animation: float 15s infinite linear;
+        }
+
+        .balloon::before {
+            content: '';
+            position: absolute;
+            width: 1px;
+            height: 100px;
+            background: #ccc;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .balloon:nth-child(2n) {
+            background: var(--secondary);
+            left: 10%;
+            top: 20%;
+            animation-delay: 2s;
+            animation-duration: 12s;
+        }
+
+        .balloon:nth-child(3n) {
+            background: var(--accent);
+            left: 70%;
+            top: 30%;
+            animation-delay: 4s;
+            animation-duration: 18s;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(5deg); }
+            100% { transform: translateY(-200px) rotate(0deg); }
+        }
+
+        /* How It Works Modal Styles */
+        .how-it-works-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: #f0f0f0;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .how-it-works-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .how-it-works-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .how-it-works-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .how-it-works-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .how-it-works-modal.active .how-it-works-content {
+            transform: translateY(0);
+        }
+
+        .how-it-works-content h3 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .how-it-works-content ul {
+            padding-left: 20px;
+        }
+
+        .how-it-works-content li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .close-how-it-works {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            .birthday-card {
+                padding: 25px;
+            }
+            
+            .birthday-title {
+                font-size: 2rem;
+            }
+            
+            .photo-frame {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .form-header::before,
+            .form-header::after {
+                font-size: 1.5rem;
+            }
+            
+            .info-tooltip {
+                width: 200px;
+                right: -10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating balloons background elements -->
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    
+    <div class="birthday-card">
+        <!-- Birthday Display (hidden initially) -->
+        <div class="birthday-display" id="birthdayDisplay">
+            <div class="photo-frame">
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                <img src="" alt="" class="birthday-pic" id="birthdayPic" onerror="handleImageError(this)">
+            </div>
+            <div class="theme-icon" id="themeIcon"></div>
+            <h1 class="birthday-title">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
+            <p class="birthday-message" id="birthdayMessage"></p>
+            <button class="save-card-btn" id="saveCardBtn">
+                <i class="fas fa-download"></i> Save Card as Image
+            </button>
+        </div>
+
+        <!-- Customization Form (visible initially) -->
+        <div class="customize-form" id="customizeForm">
+            <button class="how-it-works-btn" id="howItWorksBtn">
+                <i class="fas fa-info"></i>
+            </button>
+            <div class="how-it-works-modal" id="howItWorksModal">
+                <div class="how-it-works-content">
+                    <button class="close-how-it-works" id="closeHowItWorks">&times;</button>
+                    <h3>How This Website Works</h3>
+                    <p>Create personalized birthday wishes in just a few simple steps:</p>
+                    <ul>
+                        <li><strong>Enter the recipient's name</strong> - This will appear in the birthday greeting</li>
+                        <li><strong>Add a photo URL</strong> - Provide a link to an image (or leave blank for default)</li>
+                        <li><strong>Select a message</strong> - Choose from our pre-written messages or use random</li>
+                        <li><strong>Generate your card</strong> - Click the button to create your personalized birthday wish</li>
+                        <li><strong>Save or Share</strong> - Download as image or copy the shareable link</li>
+                    </ul>
+                    <p>When the recipient opens the link, they'll see the beautiful birthday card you created!</p>
+                </div>
+            </div>
+            
+            <div class="form-header">
+                <h3><i class="fas fa-gift"></i> Create Birthday Wishes</h3>
+                <p>Make someone's day special with personalized birthday wishes!</p>
+            </div>
+            
+            <!-- Floating Birthday Elements -->
+            <div class="birthday-element" style="top:20%; left:10%;">🎈</div>
+            <div class="birthday-element" style="top:30%; right:15%; animation-delay:1s;">✨</div>
+            <div class="birthday-element" style="bottom:20%; left:15%; animation-delay:2s;">🎁</div>
+            <div class="birthday-element" style="bottom:30%; right:10%; animation-delay:3s;">🥳</div>
+            
+            <div class="form-group">
+                <label for="customName"><i class="fas fa-user"></i> Recipient's Name</label>
+                <input type="text" id="customName" placeholder="Enter name">
+            </div>
+            
+            <div class="form-group">
+                <label for="customPic"><i class="fas fa-camera"></i> Photo URL</label>
+                <input type="url" id="customPic" placeholder="https://example.com/photo.jpg">
+                <div class="error-message" id="urlError">Please enter a valid image URL (jpg, png, gif)</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="customMessage"><i class="fas fa-comment-alt"></i> Select Message</label>
+                <select id="customMessage" class="message-select">
+                    <option value="random">Random Message</option>
+                    <!-- Messages will be added by JavaScript -->
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button class="save-btn" id="generateBtn" disabled>
+                    <i class="fas fa-magic"></i> Create Birthday Card
+                </button>
+            </div>
+        </div>
+
+        <!-- Share Section (hidden initially) -->
+        <div class="share-section" id="shareSection">
+            <div class="share-url-container">
+                <button class="info-button" id="infoButton">
+                    <i class="fas fa-info"></i>
+                </button>
+                <div class="info-tooltip" id="infoTooltip">
+                    <p><strong>How to share:</strong></p>
+                    <p>1. Copy the link below</p>
+                    <p>2. Send it to the birthday person</p>
+                    <p>3. When they open it, they'll see your personalized birthday card!</p>
+                </div>
+                <div class="share-url-label"><i class="fas fa-link"></i> Your shareable link:</div>
+                <div class="share-url-value" id="shareUrlDisplay"></div>
+                <div class="success-message" id="successMessage">
+                    <i class="fas fa-check-circle"></i> Link copied to clipboard!
+                </div>
+            </div>
+            <div class="share-url-group">
+                <button class="copy-btn" id="copyBtn">
+                    <i class="fas fa-copy"></i> Copy Link
+                </button>
+                <button class="back-btn" id="backBtn">
+                    <i class="fas fa-edit"></i> Create Another
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        // Birthday data with numerical indexes
+        const birthdayData = {
+            wishes: [
+                {
+                    id: 0,
+                    title: "Adventure Theme",
+                    message: "May your birthday be the start of a year filled with wonderful adventures and exciting journeys! Wishing you happiness in all your endeavors.",
+                    icon: "⛰️"
+                },
+                {
+                    id: 1,
+                    title: "Joy Theme",
+                    message: "Wishing you a birthday overflowing with happiness, laughter, and joy that lasts throughout the coming year! May all your dreams come true.",
+                    icon: "🎉"
+                },
+                {
+                    id: 2,
+                    title: "Success Theme",
+                    message: "May your birthday mark the beginning of your most successful year yet! Wishing you achievements, prosperity, and fulfillment in all you do.",
+                    icon: "🏆"
+                },
+                {
+                    id: 3,
+                    title: "Friendship Theme",
+                    message: "On your special day, I want you to know how much you mean to me. Wishing you a birthday as wonderful as the friendship we share!",
+                    icon: "👫"
+                },
+                {
+                    id: 4,
+                    title: "Love Theme",
+                    message: "Happy birthday to someone who makes my world brighter every day! May your birthday be as special and beautiful as you are to me.",
+                    icon: "💖"
+                }
+            ],
+            defaultPic: "https://i.imgur.com/JQWUQfZ.jpg"
+        };
+
+        // Initialize the app
+        function initApp() {
+            // Populate message dropdown with options
+            const messageSelect = document.getElementById('customMessage');
+            birthdayData.wishes.forEach(wish => {
+                const option = document.createElement('option');
+                option.value = wish.id;
+                option.textContent = `${wish.title}`;
+                messageSelect.appendChild(option);
+            });
+
+            // Set up event listeners
+            document.getElementById('generateBtn').addEventListener('click', createShareLink);
+            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+            document.getElementById('backBtn').addEventListener('click', resetForm);
+            document.getElementById('saveCardBtn').addEventListener('click', saveCardAsImage);
+            
+            // Form validation listeners
+            document.getElementById('customName').addEventListener('input', validateForm);
+            document.getElementById('customPic').addEventListener('input', validateForm);
+            
+            // Add floating elements when form is interacted with
+            document.getElementById('customizeForm').addEventListener('mouseenter', createFloatingElements);
+            document.getElementById('customName').addEventListener('focus', createFloatingElements);
+            document.getElementById('customPic').addEventListener('focus', createFloatingElements);
+            document.getElementById('customMessage').addEventListener('focus', createFloatingElements);
+            
+            // Info button event listener
+            document.getElementById('infoButton').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const tooltip = document.getElementById('infoTooltip');
+                tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Close tooltip when clicking anywhere else
+            document.addEventListener('click', function() {
+                document.getElementById('infoTooltip').style.display = 'none';
+            });
+            
+            // How it works modal functionality
+            const howItWorksBtn = document.getElementById('howItWorksBtn');
+            const howItWorksModal = document.getElementById('howItWorksModal');
+            const closeHowItWorks = document.getElementById('closeHowItWorks');
+
+            howItWorksBtn.addEventListener('click', () => {
+                howItWorksModal.classList.add('active');
+            });
+
+            closeHowItWorks.addEventListener('click', () => {
+                howItWorksModal.classList.remove('active');
+            });
+
+            howItWorksModal.addEventListener('click', (e) => {
+                if (e.target === howItWorksModal) {
+                    howItWorksModal.classList.remove('active');
+                }
+            });
+            
+            // Check for URL parameters on page load
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('name') || urlParams.has('pic') || urlParams.has('message')) {
+                showSharedCard(urlParams);
+            }
+        }
+
+        // Save card as JPG image
+        function saveCardAsImage() {
+            const cardElement = document.getElementById('birthdayDisplay');
+            const saveBtn = document.getElementById('saveCardBtn');
+            
+            // Show loading state
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveBtn.disabled = true;
+            
+            // Clone the element to avoid html2canvas issues
+            const clone = cardElement.cloneNode(true);
+            clone.style.position = 'absolute';
+            clone.style.left = '-9999px';
+            clone.style.top = '0';
+            clone.style.opacity = '1'; // Ensure it's visible
+            document.body.appendChild(clone);
+            
+            // Fix for html2canvas not capturing background properly
+            const elementsWithBg = clone.querySelectorAll('*');
+            elementsWithBg.forEach(el => {
+                const styles = window.getComputedStyle(el);
+                if (styles.backgroundColor === 'rgba(0, 0, 0, 0)' || styles.backgroundColor === 'transparent') {
+                    el.style.backgroundColor = 'white';
+                }
+            });
+            
+            // Use html2canvas to capture the cloned element
+            html2canvas(clone, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#FFFFFF'
+            }).then(canvas => {
+                // Convert canvas to image
+                const image = canvas.toDataURL('image/jpeg', 0.9);
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = 'birthday-card.jpg';
+                link.href = image;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Remove clone and restore button state
+                document.body.removeChild(clone);
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }).catch(err => {
+                console.error('Error saving card:', err);
+                alert('Error saving card. Please try again.');
+                document.body.removeChild(clone);
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            });
+        }
+
+        // Create floating birthday elements
+        function createFloatingElements() {
+            const form = document.getElementById('customizeForm');
+            const emojis = ["🎈", "🎉", "🎊", "🎁", "✨", "🥳", "🎂", "🍰"];
+            
+            // Create 3-5 random floating elements
+            const count = Math.floor(Math.random() * 3) + 3;
+            
+            for (let i = 0; i < count; i++) {
+                const element = document.createElement('div');
+                element.className = 'birthday-element';
+                element.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                element.style.left = Math.random() * 80 + 10 + '%';
+                element.style.top = Math.random() * 80 + 10 + '%';
+                element.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                element.style.animationDelay = (Math.random() * 3) + 's';
+                element.style.fontSize = (Math.random() * 0.8 + 1) + 'rem';
+                
+                form.appendChild(element);
+                
+                // Remove element after animation completes
+                setTimeout(() => {
+                    if (element.parentNode) {
+                        element.remove();
+                    }
+                }, 15000);
+            }
+        }
+
+        // Validate URL input
+        function isValidImageUrl(url) {
+            if (!url) return true; // Allow empty (will use default)
+            
+            // Basic URL validation
+            try {
+                new URL(url);
+            } catch (e) {
+                return false;
+            }
+            
+            // Check for common image extensions
+            return /\.(jpeg|jpg|gif|png|webp)$/i.test(url);
+        }
+
+        // Validate form and enable/disable generate button
+        function validateForm() {
+            const name = document.getElementById('customName').value.trim();
+            const picUrl = document.getElementById('customPic').value.trim();
+            const generateBtn = document.getElementById('generateBtn');
+            const urlError = document.getElementById('urlError');
+            
+            // Validate URL
+            if (picUrl && !isValidImageUrl(picUrl)) {
+                document.getElementById('customPic').classList.add('error');
+                urlError.style.display = 'block';
+                generateBtn.disabled = true;
+                return;
+            } else {
+                document.getElementById('customPic').classList.remove('error');
+                urlError.style.display = 'none';
+            }
+            
+            // Enable button if name is not empty
+            generateBtn.disabled = !name;
+        }
+
+        // Handle image loading
+        function loadImageWithSpinner(imgElement, src) {
+            const spinner = document.getElementById('loadingSpinner');
+            
+            // Show spinner and hide image
+            spinner.style.display = 'block';
+            imgElement.style.opacity = '0';
+            
+            // Create new image to test loading
+            const testImage = new Image();
+            testImage.onload = function() {
+                // Image loaded successfully
+                imgElement.src = src;
+                imgElement.style.opacity = '1';
+                spinner.style.display = 'none';
+                createConfetti();
+            };
+            
+            testImage.onerror = function() {
+                // Image failed to load
+                handleImageError(imgElement);
+                spinner.style.display = 'none';
+            };
+            
+            testImage.src = src;
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#FF7EB9', '#7AF1FA', '#FFD166', '#A162E8', '#6B73FF'];
+            const card = document.querySelector('.birthday-card');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = -10 + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 8 + 5 + 'px';
+                confetti.style.height = Math.random() * 8 + 5 + 'px';
+                confetti.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+                
+                const animationDuration = Math.random() * 3 + 2 + 's';
+                confetti.style.animation = `confettiFall ${animationDuration} linear forwards`;
+                
+                card.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+            
+            // Add CSS for confetti animation
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes confettiFall {
+                    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+                    100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Handle image errors
+        function handleImageError(imgElement) {
+            imgElement.src = birthdayData.defaultPic;
+            imgElement.style.opacity = '1';
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // Show shared card when URL has parameters
+        function showSharedCard(urlParams) {
+            const name = urlParams.get('name') || 'Friend';
+            const pic = urlParams.get('pic') || birthdayData.defaultPic;
+            let messageId = urlParams.get('message');
+
+            // Handle message parameter
+            let selectedMessage;
+            if (messageId === 'random' || messageId === null) {
+                // Random message
+                selectedMessage = birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+            } else {
+                // Specific message by ID
+                messageId = parseInt(messageId);
+                selectedMessage = birthdayData.wishes.find(w => w.id === messageId) || 
+                                 birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+            }
+
+            // Update display
+            document.getElementById('birthdayName').textContent = decodeURIComponent(name);
+            document.getElementById('birthdayPic').alt = `Birthday photo for ${decodeURIComponent(name)}`;
+            loadImageWithSpinner(document.getElementById('birthdayPic'), pic || birthdayData.defaultPic);
+            document.getElementById('birthdayMessage').textContent = selectedMessage.message;
+            document.getElementById('themeIcon').textContent = selectedMessage.icon;
+            
+            // Show the birthday display
+            document.getElementById('birthdayDisplay').style.display = 'block';
+            document.getElementById('customizeForm').style.display = 'none';
+            document.getElementById('shareSection').style.display = 'none';
+        }
+
+        // Create shareable link
+        function createShareLink() {
+            const name = document.getElementById('customName').value.trim() || 'Friend';
+            const pic = document.getElementById('customPic').value.trim() || birthdayData.defaultPic;
+            const messageSelect = document.getElementById('customMessage');
+            let messageId = messageSelect.value;
+
+            // Get selected message
+            let selectedMessage;
+            if (messageId === 'random') {
+                // Random message
+                selectedMessage = birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+                messageId = selectedMessage.id;
+            } else {
+                // Specific message
+                messageId = parseInt(messageId);
+                selectedMessage = birthdayData.wishes.find(w => w.id === messageId) || 
+                                 birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+                messageId = selectedMessage.id;
+            }
+
+            // Update display
+            document.getElementById('birthdayName').textContent = name;
+            document.getElementById('birthdayPic').alt = `Birthday photo for ${name}`;
+            loadImageWithSpinner(document.getElementById('birthdayPic'), pic);
+            document.getElementById('birthdayMessage').textContent = selectedMessage.message;
+            document.getElementById('themeIcon').textContent = selectedMessage.icon;
+            
+            // Generate the shareable URL
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?name=${encodeURIComponent(name)}&pic=${encodeURIComponent(pic)}&message=${messageId}`;
+            
+            // Show the share section with URL displayed above copy button
+            document.getElementById('shareUrlDisplay').textContent = shareUrl;
+            document.getElementById('birthdayDisplay').style.display = 'block';
+            document.getElementById('customizeForm').style.display = 'none';
+            document.getElementById('shareSection').style.display = 'block';
+            
+            // Create confetti celebration
+            createConfetti();
+        }
+
+        // Copy link to clipboard
+        function copyToClipboard() {
+            const shareUrl = document.getElementById('shareUrlDisplay').textContent;
+            const successMessage = document.getElementById('successMessage');
+            
+            // Modern clipboard API method
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareUrl)
+                    .then(() => {
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 3000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        fallbackCopyMethod(shareUrl, successMessage);
+                    });
+            } else {
+                // Fallback for older browsers
+                fallbackCopyMethod(shareUrl, successMessage);
+            }
+        }
+
+        function fallbackCopyMethod(text, successElement) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    successElement.style.display = 'block';
+                    setTimeout(() => {
+                        successElement.style.display = 'none';
+                    }, 3000);
+                } else {
+                    alert('Failed to copy link. Please try again or copy manually.');
+                }
+            } catch (err) {
+                console.error('Fallback copy failed: ', err);
+                alert('Failed to copy link. Please copy manually.');
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('birthdayDisplay').style.display = 'none';
+            document.getElementById('shareSection').style.display = 'none';
+            document.getElementById('customizeForm').style.display = 'block';
+            
+            // Reset form fields
+            document.getElementById('customName').value = '';
+            document.getElementById('customPic').value = '';
+            document.getElementById('customMessage').value = 'random';
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('customPic').classList.remove('error');
+            document.getElementById('urlError').style.display = 'none';
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
