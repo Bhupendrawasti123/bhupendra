@@ -66,6 +66,7 @@
             margin-bottom: 30px;
             animation: fadeIn 0.5s ease;
             position: relative;
+            width: 100%;
         }
 
         @keyframes fadeIn {
@@ -658,9 +659,12 @@
             color: #666;
         }
 
+        /* Mobile-specific styles */
         @media (max-width: 600px) {
             .birthday-card {
                 padding: 25px;
+                width: 90vw;
+                margin: 20px auto;
             }
             
             .birthday-title {
@@ -681,6 +685,45 @@
                 width: 200px;
                 right: -10px;
             }
+
+            .birthday-message {
+                font-size: 1rem;
+                padding: 15px;
+            }
+
+            .birthday-display {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+
+        /* For saving as image */
+        .hidden-for-save {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            visibility: hidden;
+        }
+
+        .save-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #FFD1DC; /* Mimi pink background */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1rem;
+            color: #555;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px dashed #FF7EB9;
         }
     </style>
 </head>
@@ -792,6 +835,19 @@
         </div>
     </div>
 
+    <!-- Hidden container for saving -->
+    <div id="saveContainer" class="hidden-for-save">
+        <div class="save-container">
+            <div class="photo-frame">
+                <img src="" alt="" id="savePic" class="birthday-pic">
+            </div>
+            <div id="saveThemeIcon" class="theme-icon"></div>
+            <h1 class="birthday-title">Happy Birthday <span id="saveName"></span>!</h1>
+            <p id="saveMessage" class="birthday-message"></p>
+            <div class="signature">Bhupendrawasti.com.np</div>
+        </div>
+    </div>
+
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
         // Birthday data with numerical indexes
@@ -896,9 +952,8 @@
             }
         }
 
-        // Save card as JPG image
+        // Save card as JPG image (improved version with Mimi pink background)
         function saveCardAsImage() {
-            const cardElement = document.getElementById('birthdayDisplay');
             const saveBtn = document.getElementById('saveCardBtn');
             
             // Show loading state
@@ -906,30 +961,32 @@
             saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             saveBtn.disabled = true;
             
-            // Clone the element to avoid html2canvas issues
-            const clone = cardElement.cloneNode(true);
-            clone.style.position = 'absolute';
-            clone.style.left = '-9999px';
-            clone.style.top = '0';
-            clone.style.opacity = '1'; // Ensure it's visible
-            document.body.appendChild(clone);
+            // Update the hidden save container with current data
+            const name = document.getElementById('birthdayName').textContent;
+            const picSrc = document.getElementById('birthdayPic').src;
+            const message = document.getElementById('birthdayMessage').textContent;
+            const icon = document.getElementById('themeIcon').textContent;
             
-            // Fix for html2canvas not capturing background properly
-            const elementsWithBg = clone.querySelectorAll('*');
-            elementsWithBg.forEach(el => {
-                const styles = window.getComputedStyle(el);
-                if (styles.backgroundColor === 'rgba(0, 0, 0, 0)' || styles.backgroundColor === 'transparent') {
-                    el.style.backgroundColor = 'white';
-                }
-            });
+            document.getElementById('saveName').textContent = name;
+            document.getElementById('savePic').src = picSrc;
+            document.getElementById('saveMessage').textContent = message;
+            document.getElementById('saveThemeIcon').textContent = icon;
             
-            // Use html2canvas to capture the cloned element
-            html2canvas(clone, {
+            // Get the save container element
+            const saveContainer = document.getElementById('saveContainer');
+            
+            // Temporarily show the save container (but keep it off-screen)
+            saveContainer.classList.remove('hidden-for-save');
+            
+            // Use html2canvas to capture the save container
+            html2canvas(saveContainer, {
                 scale: 2,
                 logging: false,
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: '#FFFFFF'
+                backgroundColor: '#FFD1DC', // Mimi pink background
+                width: 400,
+                windowWidth: 400
             }).then(canvas => {
                 // Convert canvas to image
                 const image = canvas.toDataURL('image/jpeg', 0.9);
@@ -942,14 +999,16 @@
                 link.click();
                 document.body.removeChild(link);
                 
-                // Remove clone and restore button state
-                document.body.removeChild(clone);
+                // Hide the save container again
+                saveContainer.classList.add('hidden-for-save');
+                
+                // Restore button state
                 saveBtn.innerHTML = originalText;
                 saveBtn.disabled = false;
             }).catch(err => {
                 console.error('Error saving card:', err);
                 alert('Error saving card. Please try again.');
-                document.body.removeChild(clone);
+                saveContainer.classList.add('hidden-for-save');
                 saveBtn.innerHTML = originalText;
                 saveBtn.disabled = false;
             });
@@ -963,26 +1022,7 @@
             // Create 3-5 random floating elements
             const count = Math.floor(Math.random() * 3) + 3;
             
-            for (let i = 0; i < count; i++) {
-                const element = document.createElement('div');
-                element.className = 'birthday-element';
-                element.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                element.style.left = Math.random() * 80 + 10 + '%';
-                element.style.top = Math.random() * 80 + 10 + '%';
-                element.style.animationDuration = (Math.random() * 5 + 5) + 's';
-                element.style.animationDelay = (Math.random() * 3) + 's';
-                element.style.fontSize = (Math.random() * 0.8 + 1) + 'rem';
-                
-                form.appendChild(element);
-                
-                // Remove element after animation completes
-                setTimeout(() => {
-                    if (element.parentNode) {
-                        element.remove();
-                    }
-                }, 15000);
-            }
-        }
+                   // [Continuing from previous code...]
 
         // Validate URL input
         function isValidImageUrl(url) {
