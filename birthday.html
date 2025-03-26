@@ -14,6 +14,7 @@
             --text: #222;
             --bg: #f8f9fa;
             --card-bg: white;
+            --error: #ff4757;
         }
 
         body {
@@ -50,6 +51,7 @@
             padding: 8px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            position: relative;
         }
 
         .birthday-pic {
@@ -58,6 +60,25 @@
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid white;
+            transition: opacity 0.3s;
+        }
+
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary);
+            animation: spin 1s ease-in-out infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         .birthday-title {
@@ -102,6 +123,17 @@
             font-family: 'Montserrat', sans-serif;
         }
 
+        input.error {
+            border-color: var(--error);
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
         .form-actions {
             margin-top: 30px;
         }
@@ -127,15 +159,39 @@
             transform: translateY(-2px);
         }
 
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .share-section {
             display: none;
             margin-top: 30px;
         }
 
+        .share-url-container {
+            margin-bottom: 20px;
+        }
+
+        .share-url-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .share-url-value {
+            word-break: break-all;
+            background: #f8f8f8;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 10px;
+        }
+
         .share-url-group {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
         }
 
         #shareUrl {
@@ -144,6 +200,7 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             background: #f8f8f8;
+            display: none; /* Hidden since we're showing the URL above */
         }
 
         .back-btn {
@@ -157,7 +214,8 @@
         <!-- Birthday Display (hidden initially) -->
         <div class="birthday-display" id="birthdayDisplay">
             <div class="photo-frame">
-                <img src="" alt="" class="birthday-pic" id="birthdayPic" onerror="this.src='https://i.imgur.com/JQWUQfZ.jpg'">
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                <img src="" alt="" class="birthday-pic" id="birthdayPic" onerror="handleImageError(this)">
             </div>
             <div class="theme-icon" id="themeIcon"></div>
             <h1 class="birthday-title">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
@@ -176,17 +234,19 @@
             <div class="form-group">
                 <label for="customPic"><i class="fas fa-camera"></i> Photo URL</label>
                 <input type="url" id="customPic" placeholder="https://example.com/photo.jpg">
+                <div class="error-message" id="urlError">Please enter a valid image URL (jpg, png, gif)</div>
             </div>
             
             <div class="form-group">
                 <label for="customMessage"><i class="fas fa-comment-alt"></i> Select Message</label>
                 <select id="customMessage" class="message-select">
                     <option value="random">Random Message</option>
+                    <!-- Messages will be added by JavaScript -->
                 </select>
             </div>
             
             <div class="form-actions">
-                <button class="save-btn" id="generateBtn">
+                <button class="save-btn" id="generateBtn" disabled>
                     <i class="fas fa-link"></i> Generate Shareable Link
                 </button>
             </div>
@@ -194,35 +254,40 @@
 
         <!-- Share Section (hidden initially) -->
         <div class="share-section" id="shareSection">
-            <div class="share-container">
-                <div class="share-url-group">
-                    <input type="text" id="shareUrl" readonly>
-                    <button class="copy-btn" id="copyBtn">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                </div>
-                <button class="back-btn" id="backBtn">
-                    <i class="fas fa-edit"></i> Create Another
+            <div class="share-url-container">
+                <div class="share-url-label">Your shareable link:</div>
+                <div class="share-url-value" id="shareUrlDisplay"></div>
+            </div>
+            <div class="share-url-group">
+                <input type="text" id="shareUrl" readonly>
+                <button class="copy-btn" id="copyBtn">
+                    <i class="fas fa-copy"></i> Copy Link
                 </button>
             </div>
+            <button class="back-btn" id="backBtn">
+                <i class="fas fa-edit"></i> Create Another
+            </button>
         </div>
     </div>
 
     <script>
-        // Birthday data
+        // Birthday data with numerical indexes
         const birthdayData = {
             wishes: [
                 {
+                    id: 0,
                     title: "Adventure Theme",
                     message: "May your birthday be the start of a year filled with wonderful adventures!",
                     icon: "⛰️"
                 },
                 {
+                    id: 1,
                     title: "Joy Theme",
                     message: "Wishing you a birthday filled with happiness and joy that lasts throughout the year!",
                     icon: "🎉"
                 },
                 {
+                    id: 2,
                     title: "Success Theme",
                     message: "May your birthday mark the beginning of your most successful year yet!",
                     icon: "🏆"
@@ -233,12 +298,12 @@
 
         // Initialize the app
         function initApp() {
-            // Populate message dropdown
+            // Populate message dropdown with numbered options
             const messageSelect = document.getElementById('customMessage');
-            birthdayData.wishes.forEach((wish, index) => {
+            birthdayData.wishes.forEach(wish => {
                 const option = document.createElement('option');
-                option.value = index;
-                option.textContent = wish.title;
+                option.value = wish.id;
+                option.textContent = `${wish.id}. ${wish.title}: ${wish.message}`;
                 messageSelect.appendChild(option);
             });
 
@@ -247,30 +312,113 @@
             document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
             document.getElementById('backBtn').addEventListener('click', resetForm);
             
-            // Check for URL parameters
+            // Form validation listeners
+            document.getElementById('customName').addEventListener('input', validateForm);
+            document.getElementById('customPic').addEventListener('input', validateForm);
+            
+            // Check for URL parameters on page load
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('name') || urlParams.has('pic') || urlParams.has('message')) {
-                // If sharing link is opened, show the birthday display
                 showSharedCard(urlParams);
             }
         }
 
-        // Show shared card when opening a shared link
+        // Validate URL input
+        function isValidImageUrl(url) {
+            if (!url) return true; // Allow empty (will use default)
+            
+            // Basic URL validation
+            try {
+                new URL(url);
+            } catch (e) {
+                return false;
+            }
+            
+            // Check for common image extensions
+            return /\.(jpeg|jpg|gif|png|webp)$/i.test(url);
+        }
+
+        // Validate form and enable/disable generate button
+        function validateForm() {
+            const name = document.getElementById('customName').value.trim();
+            const picUrl = document.getElementById('customPic').value.trim();
+            const generateBtn = document.getElementById('generateBtn');
+            const urlError = document.getElementById('urlError');
+            
+            // Validate URL
+            if (picUrl && !isValidImageUrl(picUrl)) {
+                document.getElementById('customPic').classList.add('error');
+                urlError.style.display = 'block';
+                generateBtn.disabled = true;
+                return;
+            } else {
+                document.getElementById('customPic').classList.remove('error');
+                urlError.style.display = 'none';
+            }
+            
+            // Enable button if name is not empty
+            generateBtn.disabled = !name;
+        }
+
+        // Handle image loading
+        function loadImageWithSpinner(imgElement, src) {
+            const spinner = document.getElementById('loadingSpinner');
+            
+            // Show spinner and hide image
+            spinner.style.display = 'block';
+            imgElement.style.opacity = '0';
+            
+            // Create new image to test loading
+            const testImage = new Image();
+            testImage.onload = function() {
+                // Image loaded successfully
+                imgElement.src = src;
+                imgElement.style.opacity = '1';
+                spinner.style.display = 'none';
+            };
+            
+            testImage.onerror = function() {
+                // Image failed to load
+                handleImageError(imgElement);
+                spinner.style.display = 'none';
+            };
+            
+            testImage.src = src;
+        }
+
+        // Handle image errors
+        function handleImageError(imgElement) {
+            imgElement.src = birthdayData.defaultPic;
+            imgElement.style.opacity = '1';
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // Show shared card when URL has parameters
         function showSharedCard(urlParams) {
             const name = urlParams.get('name') || 'Friend';
             const pic = urlParams.get('pic') || birthdayData.defaultPic;
-            const messageIndex = urlParams.get('message') || 
-                Math.floor(Math.random() * birthdayData.wishes.length);
-            
+            let messageId = urlParams.get('message');
+
+            // Handle message parameter
+            let selectedMessage;
+            if (messageId === 'random' || messageId === null) {
+                // Random message
+                selectedMessage = birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+            } else {
+                // Specific message by ID
+                messageId = parseInt(messageId);
+                selectedMessage = birthdayData.wishes.find(w => w.id === messageId) || 
+                                 birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+            }
+
             // Update display
             document.getElementById('birthdayName').textContent = decodeURIComponent(name);
-            document.getElementById('birthdayPic').src = pic ? decodeURIComponent(pic) : birthdayData.defaultPic;
-            document.getElementById('birthdayMessage').textContent = 
-                birthdayData.wishes[messageIndex].message;
-            document.getElementById('themeIcon').textContent = 
-                birthdayData.wishes[messageIndex].icon;
+            document.getElementById('birthdayPic').alt = `Birthday photo for ${decodeURIComponent(name)}`;
+            loadImageWithSpinner(document.getElementById('birthdayPic'), pic || birthdayData.defaultPic);
+            document.getElementById('birthdayMessage').textContent = selectedMessage.message;
+            document.getElementById('themeIcon').textContent = selectedMessage.icon;
             
-            // Show the birthday display and hide form
+            // Show the birthday display
             document.getElementById('birthdayDisplay').style.display = 'block';
             document.getElementById('customizeForm').style.display = 'none';
             document.getElementById('shareSection').style.display = 'none';
@@ -280,24 +428,38 @@
         function createShareLink() {
             const name = document.getElementById('customName').value.trim() || 'Friend';
             const pic = document.getElementById('customPic').value.trim() || birthdayData.defaultPic;
-            const messageIndex = document.getElementById('customMessage').value === 'random' ? 
-                Math.floor(Math.random() * birthdayData.wishes.length) : 
-                parseInt(document.getElementById('customMessage').value);
-            
+            const messageSelect = document.getElementById('customMessage');
+            let messageId = messageSelect.value;
+
+            // Get selected message
+            let selectedMessage;
+            if (messageId === 'random') {
+                // Random message
+                selectedMessage = birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+                messageId = selectedMessage.id;
+            } else {
+                // Specific message
+                messageId = parseInt(messageId);
+                selectedMessage = birthdayData.wishes.find(w => w.id === messageId) || 
+                                 birthdayData.wishes[Math.floor(Math.random() * birthdayData.wishes.length)];
+                messageId = selectedMessage.id;
+            }
+
             // Update display
             document.getElementById('birthdayName').textContent = name;
-            document.getElementById('birthdayPic').src = pic;
-            document.getElementById('birthdayMessage').textContent = birthdayData.wishes[messageIndex].message;
-            document.getElementById('themeIcon').textContent = birthdayData.wishes[messageIndex].icon;
+            document.getElementById('birthdayPic').alt = `Birthday photo for ${name}`;
+            loadImageWithSpinner(document.getElementById('birthdayPic'), pic);
+            document.getElementById('birthdayMessage').textContent = selectedMessage.message;
+            document.getElementById('themeIcon').textContent = selectedMessage.icon;
             
-            // Show the birthday display
-            document.getElementById('birthdayDisplay').style.display = 'block';
+            // Generate the shareable URL
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?name=${encodeURIComponent(name)}&pic=${encodeURIComponent(pic)}&message=${messageId}`;
             
-            // Generate share URL
-            const currentUrl = window.location.origin + window.location.pathname;
-            const shareUrl = `${currentUrl}?name=${encodeURIComponent(name)}&pic=${encodeURIComponent(pic)}&message=${messageIndex}`;
-            
+            // Show the share section with URL displayed above copy button
+            document.getElementById('shareUrlDisplay').textContent = shareUrl;
             document.getElementById('shareUrl').value = shareUrl;
+            document.getElementById('birthdayDisplay').style.display = 'block';
             document.getElementById('customizeForm').style.display = 'none';
             document.getElementById('shareSection').style.display = 'block';
         }
@@ -327,9 +489,12 @@
             document.getElementById('customName').value = '';
             document.getElementById('customPic').value = '';
             document.getElementById('customMessage').value = 'random';
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('customPic').classList.remove('error');
+            document.getElementById('urlError').style.display = 'none';
         }
 
-        // Initialize the app when DOM is loaded
+        // Initialize the app
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
