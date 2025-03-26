@@ -7,17 +7,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+
         :root {
-            --primary: #FF7EB9;
-            --secondary: #7AF1FA;
-            --accent: #FFD166;
-            --text: #2E2E2E;
-            --bg: #F9F7FE;
+            --primary: #E91E63;
+            --secondary: #00BCD4;
+            --accent: #FF9800;
+            --text: #212121;
+            --bg: #F8F9FA;
             --card-bg: white;
             --form-bg: #FFFFFF;
-            --error: #FF6B6B;
+            --error: #F44336;
             --success: #4CAF50;
-            --save-btn: #4CAF50;
+            --save-btn: #388E3C;
+            --text-on-primary: #FFFFFF;
+            --text-on-secondary: #FFFFFF;
+            --text-on-accent: #212121;
         }
 
         body {
@@ -29,7 +37,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-image: radial-gradient(circle at 10% 20%, rgba(255, 126, 185, 0.1) 0%, rgba(122, 241, 250, 0.1) 90%);
+            background-image: radial-gradient(circle at 10% 20%, rgba(233, 30, 99, 0.1) 0%, rgba(0, 188, 212, 0.1) 90%);
         }
 
         .birthday-card {
@@ -39,14 +47,15 @@
             max-width: 600px;
             padding: 40px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-            transform: translateY(0);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
+            transform-style: preserve-3d;
         }
 
         .birthday-card:hover {
-            transform: translateY(-5px);
+            transform: translate3d(0, -5px, 0);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
         }
 
@@ -64,14 +73,12 @@
             display: none;
             text-align: center;
             margin-bottom: 30px;
-            animation: fadeIn 0.5s ease;
-            position: relative;
-            width: 100%;
+            animation: fadeIn 0.5s ease forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translate3d(0, 20px, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
         }
 
         .photo-frame {
@@ -83,11 +90,12 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             position: relative;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: translateZ(0);
         }
 
         .photo-frame:hover {
-            transform: scale(1.05) rotate(5deg);
+            transform: scale3d(1.05, 1.05, 1) rotate(5deg);
         }
 
         .birthday-pic {
@@ -98,13 +106,14 @@
             border: 5px solid white;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateZ(0);
         }
 
         .loading-spinner {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate3d(-50%, -50%, 0);
             width: 50px;
             height: 50px;
             border: 5px solid rgba(255, 255, 255, 0.3);
@@ -112,10 +121,11 @@
             border-top-color: var(--secondary);
             animation: spin 1.2s linear infinite;
             display: none;
+            transform: translateZ(0);
         }
 
         @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+            to { transform: translate3d(-50%, -50%, 0) rotate(360deg); }
         }
 
         .birthday-title {
@@ -124,11 +134,7 @@
             margin: 20px 0 10px;
             font-weight: 700;
             font-family: 'Dancing Script', cursive;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .birthday-message {
@@ -138,9 +144,10 @@
             line-height: 1.7;
             position: relative;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transform: translateZ(0);
         }
 
         .birthday-message::before {
@@ -149,26 +156,14 @@
             position: absolute;
             top: -20px;
             left: 10px;
-            color: rgba(255, 126, 185, 0.2);
+            color: rgba(233, 30, 99, 0.2);
             font-family: serif;
             line-height: 1;
         }
 
-        .theme-icon {
-            font-size: 3rem;
-            margin: 20px 0;
-            text-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
         .save-card-btn {
             background: linear-gradient(45deg, var(--save-btn), #2E7D32);
-            color: white;
+            color: var(--text-on-primary);
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
@@ -179,12 +174,13 @@
             justify-content: center;
             gap: 8px;
             margin-top: 20px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transform: translateZ(0);
         }
 
         .save-card-btn:hover {
-            transform: translateY(-2px);
+            transform: translate3d(0, -2px, 0);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         }
 
@@ -201,6 +197,13 @@
             background-color: var(--primary);
             opacity: 0;
             z-index: 10;
+            animation: confettiFall var(--duration) linear forwards;
+            transform: translateZ(0);
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate3d(var(--random-x), 500px, 0) rotate(360deg); opacity: 0; }
         }
 
         .customize-form {
@@ -213,7 +216,8 @@
             margin-top: 20px;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 126, 185, 0.2);
+            border: 1px solid rgba(233, 30, 99, 0.2);
+            transform: translateZ(0);
         }
 
         .customize-form::before {
@@ -224,7 +228,7 @@
             right: 0;
             height: 4px;
             background: linear-gradient(90deg, 
-                #FF7EB9, #7AF1FA, #FFD166, #A162E8, #6B73FF);
+                #E91E63, #00BCD4, #FF9800, #9C27B0, #3F51B5);
             background-size: 300% 300%;
             animation: gradientBG 3s ease infinite;
         }
@@ -286,13 +290,13 @@
             font-size: 1.2rem;
             opacity: 0.7;
             z-index: 0;
-            animation: floatElement 8s infinite linear;
+            animation: float 8s infinite linear;
+            transform: translateZ(0);
         }
 
-        @keyframes floatElement {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(10deg); }
-            100% { transform: translateY(0) rotate(0deg); }
+        @keyframes float {
+            0%, 100% { transform: translate3d(0, 0, 0); }
+            50% { transform: translate3d(0, -20px, 0); }
         }
 
         .form-group {
@@ -311,19 +315,21 @@
         input, select {
             width: 100%;
             padding: 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #BDBDBD;
             border-radius: 12px;
             font-family: 'Poppins', sans-serif;
             font-size: 1rem;
             transition: all 0.3s ease;
             background-color: rgba(255, 255, 255, 0.8);
+            color: var(--text);
+            transform: translateZ(0);
         }
 
         input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 126, 185, 0.2);
-            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23FF7EB9' fill-opacity='0.1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.2);
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23E91E63' fill-opacity='0.1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
         }
 
         input.error {
@@ -332,9 +338,9 @@
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-5px); }
-            40%, 80% { transform: translateX(5px); }
+            0%, 100% { transform: translate3d(0, 0, 0); }
+            20%, 60% { transform: translate3d(-5px, 0, 0); }
+            40%, 80% { transform: translate3d(5px, 0, 0); }
         }
 
         .error-message {
@@ -343,6 +349,7 @@
             margin-top: 8px;
             display: none;
             animation: fadeIn 0.3s ease;
+            font-weight: 600;
         }
 
         .form-actions {
@@ -351,7 +358,7 @@
 
         button {
             background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
+            color: var(--text-on-primary);
             border: none;
             padding: 16px 30px;
             border-radius: 12px;
@@ -362,11 +369,12 @@
             justify-content: center;
             gap: 10px;
             width: 100%;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             font-size: 1.1rem;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
+            transform: translateZ(0);
         }
 
         button::before {
@@ -381,13 +389,12 @@
         }
 
         button:hover {
-            transform: translateY(-3px);
+            transform: translate3d(0, -3px, 0);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
 
         #generateBtn:hover {
-            background: linear-gradient(45deg, 
-                #FF7EB9, #7AF1FA, #FFD166);
+            background: linear-gradient(45deg, #E91E63, #00BCD4, #FF9800);
             background-size: 200% 200%;
             animation: gradientBG 1.5s ease infinite;
         }
@@ -416,6 +423,7 @@
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             position: relative;
+            transform: translateZ(0);
         }
 
         .info-button {
@@ -433,6 +441,7 @@
             cursor: pointer;
             color: #666;
             transition: all 0.3s ease;
+            transform: translateZ(0);
         }
 
         .info-button:hover {
@@ -452,6 +461,7 @@
             z-index: 100;
             display: none;
             animation: fadeIn 0.3s ease;
+            transform: translateZ(0);
         }
 
         .info-tooltip::before {
@@ -470,6 +480,7 @@
             margin: 0 0 10px 0;
             font-size: 0.9rem;
             line-height: 1.4;
+            color: var(--text);
         }
 
         .info-tooltip p:last-child {
@@ -494,6 +505,7 @@
             font-size: 0.9rem;
             line-height: 1.5;
             transition: all 0.3s ease;
+            color: var(--text);
         }
 
         .share-url-value:hover {
@@ -506,13 +518,14 @@
         }
 
         .copy-btn {
-            background: linear-gradient(45deg, #6B73FF, #000DFF);
+            background: linear-gradient(45deg, #3F51B5, #303F9F);
             flex: 1;
+            color: white;
         }
 
         .back-btn {
             background: linear-gradient(45deg, var(--accent), #FFB347);
-            color: var(--text);
+            color: var(--text-on-accent);
         }
 
         .success-message {
@@ -535,6 +548,7 @@
             opacity: 0.7;
             z-index: -1;
             animation: float 15s infinite linear;
+            transform: translateZ(0);
         }
 
         .balloon::before {
@@ -564,12 +578,6 @@
             animation-duration: 18s;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-100px) rotate(5deg); }
-            100% { transform: translateY(-200px) rotate(0deg); }
-        }
-
         /* How It Works Modal Styles */
         .how-it-works-btn {
             position: absolute;
@@ -587,6 +595,7 @@
             color: #666;
             transition: all 0.3s ease;
             z-index: 10;
+            transform: translateZ(0);
         }
 
         .how-it-works-btn:hover {
@@ -625,27 +634,42 @@
             overflow-y: auto;
             position: relative;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transform: translateY(20px);
+            transform: translate3d(0, 20px, 0);
             transition: transform 0.3s ease;
         }
 
         .how-it-works-modal.active .how-it-works-content {
-            transform: translateY(0);
+            transform: translate3d(0, 0, 0);
         }
 
         .how-it-works-content h3 {
             color: var(--primary);
             margin-top: 0;
             font-size: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .how-it-works-content::before {
+            content: "🎉";
+            position: absolute;
+            font-size: 5rem;
+            right: 30px;
+            bottom: 30px;
+            opacity: 0.1;
+            z-index: 1;
         }
 
         .how-it-works-content ul {
             padding-left: 20px;
+            position: relative;
+            z-index: 2;
         }
 
         .how-it-works-content li {
             margin-bottom: 10px;
             line-height: 1.5;
+            color: var(--text);
         }
 
         .close-how-it-works {
@@ -657,6 +681,32 @@
             font-size: 1.2rem;
             cursor: pointer;
             color: #666;
+            z-index: 3;
+        }
+
+        /* Music Control Button */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            transform: translateZ(0);
+        }
+
+        .music-control:hover {
+            transform: scale(1.1);
         }
 
         /* Mobile-specific styles */
@@ -695,6 +745,19 @@
                 width: 100%;
                 padding: 10px;
             }
+
+            .how-it-works-content::before {
+                font-size: 3rem;
+                right: 20px;
+                bottom: 20px;
+            }
+
+            .music-control {
+                width: 40px;
+                height: 40px;
+                bottom: 15px;
+                right: 15px;
+            }
         }
 
         /* For saving as image */
@@ -709,11 +772,25 @@
             width: 100%;
             max-width: 400px;
             margin: 0 auto;
-            background: #FFD1DC; /* Mimi pink background */
+            background: #FFD1DC;
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             text-align: center;
+            position: relative;
+            box-sizing: border-box;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .save-container .photo-frame {
+            margin: 0 auto 25px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             position: relative;
         }
 
@@ -723,7 +800,7 @@
             color: #555;
             margin-top: 20px;
             padding-top: 10px;
-            border-top: 1px dashed #FF7EB9;
+            border-top: 1px dashed #E91E63;
         }
     </style>
 </head>
@@ -740,7 +817,6 @@
                 <div class="loading-spinner" id="loadingSpinner"></div>
                 <img src="" alt="" class="birthday-pic" id="birthdayPic" onerror="handleImageError(this)">
             </div>
-            <div class="theme-icon" id="themeIcon"></div>
             <h1 class="birthday-title">Happy Birthday <span class="birthday-name" id="birthdayName"></span>!</h1>
             <p class="birthday-message" id="birthdayMessage"></p>
             <button class="save-card-btn" id="saveCardBtn">
@@ -835,13 +911,17 @@
         </div>
     </div>
 
+    <!-- Music control button -->
+    <button class="music-control" id="musicControl" style="display: none;">
+        <i class="fas fa-music"></i>
+    </button>
+
     <!-- Hidden container for saving -->
     <div id="saveContainer" class="hidden-for-save">
         <div class="save-container">
             <div class="photo-frame">
                 <img src="" alt="" id="savePic" class="birthday-pic">
             </div>
-            <div id="saveThemeIcon" class="theme-icon"></div>
             <h1 class="birthday-title">Happy Birthday <span id="saveName"></span>!</h1>
             <p id="saveMessage" class="birthday-message"></p>
             <div class="signature">Bhupendrawasti.com.np</div>
@@ -857,38 +937,47 @@
                     id: 0,
                     title: "Adventure Theme",
                     message: "May your birthday be the start of a year filled with wonderful adventures and exciting journeys! Wishing you happiness in all your endeavors.",
-                    icon: "⛰️"
                 },
                 {
                     id: 1,
                     title: "Joy Theme",
                     message: "Wishing you a birthday overflowing with happiness, laughter, and joy that lasts throughout the coming year! May all your dreams come true.",
-                    icon: "🎉"
                 },
                 {
                     id: 2,
                     title: "Success Theme",
                     message: "May your birthday mark the beginning of your most successful year yet! Wishing you achievements, prosperity, and fulfillment in all you do.",
-                    icon: "🏆"
                 },
                 {
                     id: 3,
                     title: "Friendship Theme",
                     message: "On your special day, I want you to know how much you mean to me. Wishing you a birthday as wonderful as the friendship we share!",
-                    icon: "👫"
                 },
                 {
                     id: 4,
                     title: "Love Theme",
                     message: "Happy birthday to someone who makes my world brighter every day! May your birthday be as special and beautiful as you are to me.",
-                    icon: "💖"
                 }
             ],
-            defaultPic: "https://i.imgur.com/JQWUQfZ.jpg"
+            defaultPic: "https://i.imgur.com/JQWUQfZ.jpg",
+            musicUrl: "https://bhupendrawasti123.github.io/bhupendra/media/birthday.mp3"
         };
+
+        // Audio element for birthday music
+        let birthdayMusic = null;
+        let isMusicPlaying = false;
 
         // Initialize the app
         function initApp() {
+            // Create audio element
+            birthdayMusic = new Audio(birthdayData.musicUrl);
+            birthdayMusic.loop = true;
+            birthdayMusic.volume = 0.5; // Set default volume to 50%
+            
+            // Set up music control button
+            const musicControl = document.getElementById('musicControl');
+            musicControl.addEventListener('click', toggleMusic);
+            
             // Populate message dropdown with options
             const messageSelect = document.getElementById('customMessage');
             birthdayData.wishes.forEach(wish => {
@@ -907,12 +996,6 @@
             // Form validation listeners
             document.getElementById('customName').addEventListener('input', validateForm);
             document.getElementById('customPic').addEventListener('input', validateForm);
-            
-            // Add floating elements when form is interacted with
-            document.getElementById('customizeForm').addEventListener('mouseenter', createFloatingElements);
-            document.getElementById('customName').addEventListener('focus', createFloatingElements);
-            document.getElementById('customPic').addEventListener('focus', createFloatingElements);
-            document.getElementById('customMessage').addEventListener('focus', createFloatingElements);
             
             // Info button event listener
             document.getElementById('infoButton').addEventListener('click', function(e) {
@@ -949,10 +1032,58 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('name') || urlParams.has('pic') || urlParams.has('message')) {
                 showSharedCard(urlParams);
+                // Play music when shared link is loaded
+                playBirthdayMusic();
             }
         }
 
-        // Save card as JPG image (improved version with Mimi pink background)
+        // Function to toggle music playback
+        function toggleMusic() {
+            const musicControl = document.getElementById('musicControl');
+            if (isMusicPlaying) {
+                birthdayMusic.pause();
+                musicControl.innerHTML = '<i class="fas fa-music"></i>';
+                musicControl.title = "Play music";
+                isMusicPlaying = false;
+            } else {
+                birthdayMusic.play()
+                    .then(() => {
+                        musicControl.innerHTML = '<i class="fas fa-pause"></i>';
+                        musicControl.title = "Pause music";
+                        isMusicPlaying = true;
+                    })
+                    .catch(error => {
+                        console.log("Playback failed:", error);
+                    });
+            }
+        }
+
+        // Function to play birthday music
+        function playBirthdayMusic() {
+            const musicControl = document.getElementById('musicControl');
+            musicControl.style.display = 'flex';
+            
+            if (birthdayMusic) {
+                // Try to play music (may require user interaction on some browsers)
+                const playPromise = birthdayMusic.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        musicControl.innerHTML = '<i class="fas fa-pause"></i>';
+                        musicControl.title = "Pause music";
+                        isMusicPlaying = true;
+                    })
+                    .catch(error => {
+                        console.log("Autoplay prevented:", error);
+                        musicControl.innerHTML = '<i class="fas fa-music"></i>';
+                        musicControl.title = "Play music";
+                        isMusicPlaying = false;
+                    });
+                }
+            }
+        }
+
+        // Save card as JPG image
         function saveCardAsImage() {
             const saveBtn = document.getElementById('saveCardBtn');
             
@@ -965,12 +1096,10 @@
             const name = document.getElementById('birthdayName').textContent;
             const picSrc = document.getElementById('birthdayPic').src;
             const message = document.getElementById('birthdayMessage').textContent;
-            const icon = document.getElementById('themeIcon').textContent;
             
             document.getElementById('saveName').textContent = name;
             document.getElementById('savePic').src = picSrc;
             document.getElementById('saveMessage').textContent = message;
-            document.getElementById('saveThemeIcon').textContent = icon;
             
             // Get the save container element
             const saveContainer = document.getElementById('saveContainer');
@@ -984,9 +1113,13 @@
                 logging: false,
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: '#FFD1DC', // Mimi pink background
-                width: 400,
-                windowWidth: 400
+                backgroundColor: '#FFD1DC',
+                width: saveContainer.offsetWidth,
+                windowWidth: saveContainer.offsetWidth,
+                x: 0,
+                y: 0,
+                scrollX: 0,
+                scrollY: 0
             }).then(canvas => {
                 // Convert canvas to image
                 const image = canvas.toDataURL('image/jpeg', 0.9);
@@ -1013,16 +1146,6 @@
                 saveBtn.disabled = false;
             });
         }
-
-        // Create floating birthday elements
-        function createFloatingElements() {
-            const form = document.getElementById('customizeForm');
-            const emojis = ["🎈", "🎉", "🎊", "🎁", "✨", "🥳", "🎂", "🍰"];
-            
-            // Create 3-5 random floating elements
-            const count = Math.floor(Math.random() * 3) + 3;
-            
-                   // [Continuing from previous code...]
 
         // Validate URL input
         function isValidImageUrl(url) {
@@ -1069,60 +1192,82 @@
             spinner.style.display = 'block';
             imgElement.style.opacity = '0';
             
-            // Create new image to test loading
-            const testImage = new Image();
-            testImage.onload = function() {
-                // Image loaded successfully
-                imgElement.src = src;
-                imgElement.style.opacity = '1';
-                spinner.style.display = 'none';
-                createConfetti();
-            };
-            
-            testImage.onerror = function() {
-                // Image failed to load
-                handleImageError(imgElement);
-                spinner.style.display = 'none';
-            };
-            
-            testImage.src = src;
+            // Use requestIdleCallback for better scheduling
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    const testImage = new Image();
+                    testImage.src = src;
+                    testImage.onload = () => {
+                        requestAnimationFrame(() => {
+                            imgElement.src = src;
+                            imgElement.style.opacity = '1';
+                            spinner.style.display = 'none';
+                            createConfetti();
+                        });
+                    };
+                    testImage.onerror = () => handleImageError(imgElement);
+                });
+            } else {
+                // Fallback for older browsers
+                const testImage = new Image();
+                testImage.src = src;
+                testImage.onload = function() {
+                    imgElement.src = src;
+                    imgElement.style.opacity = '1';
+                    spinner.style.display = 'none';
+                    createConfetti();
+                };
+                testImage.onerror = function() {
+                    handleImageError(imgElement);
+                };
+            }
         }
 
         // Create confetti effect
         function createConfetti() {
-            const colors = ['#FF7EB9', '#7AF1FA', '#FFD166', '#A162E8', '#6B73FF'];
+            const colors = ['#E91E63', '#00BCD4', '#FF9800', '#9C27B0', '#3F51B5'];
             const card = document.querySelector('.birthday-card');
+            const fragment = document.createDocumentFragment();
             
-            for (let i = 0; i < 50; i++) {
+            // Limit number of confetti on mobile
+            const isMobile = window.innerWidth < 600;
+            const count = isMobile ? 30 : 50;
+            
+            for (let i = 0; i < count; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.top = -10 + 'px';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.width = Math.random() * 8 + 5 + 'px';
-                confetti.style.height = Math.random() * 8 + 5 + 'px';
-                confetti.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
                 
-                const animationDuration = Math.random() * 3 + 2 + 's';
-                confetti.style.animation = `confettiFall ${animationDuration} linear forwards`;
+                // Random properties
+                const size = Math.random() * 8 + 5;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const duration = Math.random() * 3 + 2;
+                const xOffset = (Math.random() - 0.5) * 100;
                 
-                card.appendChild(confetti);
+                // Set styles directly (better performance than adding classes)
+                confetti.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    top: -10px;
+                    background-color: ${color};
+                    width: ${size}px;
+                    height: ${size}px;
+                    position: absolute;
+                    animation: confettiFall ${duration}s linear forwards;
+                    --random-x: ${xOffset}px;
+                    --duration: ${duration}s;
+                    transform: translateZ(0);
+                `;
                 
-                // Remove confetti after animation
+                fragment.appendChild(confetti);
+                
+                // Auto-remove after animation
                 setTimeout(() => {
-                    confetti.remove();
-                }, 3000);
+                    if (confetti.parentNode) {
+                        confetti.parentNode.removeChild(confetti);
+                    }
+                }, duration * 1000);
             }
             
-            // Add CSS for confetti animation
-            const style = document.createElement('style');
-            style.innerHTML = `
-                @keyframes confettiFall {
-                    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-                    100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
+            card.appendChild(fragment);
         }
 
         // Handle image errors
@@ -1155,7 +1300,6 @@
             document.getElementById('birthdayPic').alt = `Birthday photo for ${decodeURIComponent(name)}`;
             loadImageWithSpinner(document.getElementById('birthdayPic'), pic || birthdayData.defaultPic);
             document.getElementById('birthdayMessage').textContent = selectedMessage.message;
-            document.getElementById('themeIcon').textContent = selectedMessage.icon;
             
             // Show the birthday display
             document.getElementById('birthdayDisplay').style.display = 'block';
@@ -1189,7 +1333,6 @@
             document.getElementById('birthdayPic').alt = `Birthday photo for ${name}`;
             loadImageWithSpinner(document.getElementById('birthdayPic'), pic);
             document.getElementById('birthdayMessage').textContent = selectedMessage.message;
-            document.getElementById('themeIcon').textContent = selectedMessage.icon;
             
             // Generate the shareable URL
             const baseUrl = window.location.href.split('?')[0];
